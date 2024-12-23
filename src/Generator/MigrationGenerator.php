@@ -110,16 +110,37 @@ readonly class MigrationGenerator
 
     private function addColumnToMethodBody(CompareResultColumn $column, Method $method): void
     {
-        $method->addBody(
-            sprintf(
-                '    ->addColumn(%s, %s, %s, %s, %s, %s)',
-                StringUtils::toCode($column->name),
-                StringUtils::toCode($column->type),
-                StringUtils::toCode($column->nullable),
-                StringUtils::toCode($column->autoincrement),
-                StringUtils::toCode($column->primary),
-                StringUtils::toCode($column->default),
-            ),
+        $type = $column->type;
+        if ($column->size !== null) {
+            $type .= '(' . $column->size . ')';
+        } elseif ($column->precision !== null && $column->scale !== null) {
+            $type .= '(' . $column->precision . ', ' . $column->scale . ')';
+        }
+
+        $code = sprintf(
+            '    ->addColumn(%s, %s',
+            StringUtils::toCode($column->name),
+            StringUtils::toCode($type),
         );
+
+        if ($column->nullable) {
+            $code .= ', nullable: ' . StringUtils::toCode($column->nullable);
+        }
+
+        if ($column->autoincrement) {
+            $code .= ', autoincrement: ' . StringUtils::toCode($column->autoincrement);
+        }
+
+        if ($column->primary) {
+            $code .= ', primary: ' . StringUtils::toCode($column->primary);
+        }
+
+        if ($column->default !== null) {
+            $code .= ', default: ' . StringUtils::toCode($column->default);
+        }
+
+        $code .= ')';
+
+        $method->addBody($code);
     }
 }

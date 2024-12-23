@@ -20,16 +20,21 @@ class TableBuilder
     {
     }
 
+    /** @param list<string>|null $enum */
     public function addColumn(
         string $name,
         string $type,
         bool $nullable = false,
         bool $autoincrement = false,
         bool $primary = false,
+        ?int $size = null,
+        ?int $precision = null,
+        ?int $scale = null,
+        ?array $enum = null,
         string|int|float|null $default = null,
     ): self
     {
-        $this->queries[] = new AddColumn($name, $type, $nullable, $autoincrement, $primary, $default);
+        $this->queries[] = new AddColumn($name, $type, $nullable, $autoincrement, $primary, $size, $precision, $scale, $enum, $default);
 
         return $this;
     }

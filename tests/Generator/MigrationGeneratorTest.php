@@ -27,7 +27,7 @@ class MigrationGeneratorTest extends TestCase
 
         $compareResult = new CompareResult([
             new CompareResultTable('table_a', [
-                new CompareResultColumn('id', 'int', false, true, true, null),
+                new CompareResultColumn('id', 'int', false, true, true, null, null, null, null),
             ], [], []),
         ], [], []);
 

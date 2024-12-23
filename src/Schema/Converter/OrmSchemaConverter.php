@@ -20,12 +20,19 @@ class OrmSchemaConverter
 
             foreach ($entity->columns as $column) {
                 $columns[$column->columnName] = new ColumnSchema(
-                    $column->columnName,
-                    $column->columnType,
-                    $column->isNullable,
-                    $column->isAutoIncrement,
-                    $column->isNullable,
-                    $column->default,
+                    name: $column->columnName,
+                    type: $column->columnType,
+                    nullable: $column->isNullable,
+                    autoincrement: $column->isAutoIncrement,
+                    primary: $column->isPrimary,
+                    size: $column->size,
+                    precision: $column->precision,
+                    scale: $column->scale,
+                    enum: $column->enumClass !== null ? array_map(
+                        fn($case) => (string) $case,
+                        array_column($column->enumClass::cases(), 'value'),
+                    ) : null,
+                    default: $column->default,
                 );
             }
 

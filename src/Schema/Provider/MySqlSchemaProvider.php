@@ -8,6 +8,7 @@ use MarekSkopal\ORM\Database\MySqlDatabase;
 use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
 use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
 use MarekSkopal\ORM\Migrations\Schema\TableSchema;
+use MarekSkopal\ORM\Migrations\Utils\ColumnType;
 use MarekSkopal\ORM\Utils\NameUtils;
 use PDO;
 
@@ -57,13 +58,19 @@ class MySqlSchemaProvider
             $columnsSchema = [];
 
             foreach ($columns as $column) {
+                $columnType = ColumnType::parseColumnType($column['Type']);
+
                 $columnsSchema[$column['Field']] = new ColumnSchema(
-                    $column['Field'],
-                    $column['Type'],
-                    $column['Null'] === 'YES',
-                    $column['Extra'] === 'auto_increment',
-                    $column['Key'] === 'PRI',
-                    $column['Default'],
+                    name: $column['Field'],
+                    type: $columnType->type,
+                    nullable: $column['Null'] === 'YES',
+                    autoincrement: $column['Extra'] === 'auto_increment',
+                    primary: $column['Key'] === 'PRI',
+                    size: $columnType->size,
+                    precision: $columnType->precision,
+                    scale: $columnType->scale,
+                    enum: $columnType->enum,
+                    default: $column['Default'],
                 );
             }
 

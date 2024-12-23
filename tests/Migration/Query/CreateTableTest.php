@@ -19,14 +19,14 @@ class CreateTableTest extends TestCase
         $query = new CreateTable('table', [
             new AddColumn(
                 'name',
-                'varchar(255)',
+                'varchar',
                 false,
                 false,
                 false,
-                null,
+                255,
             ),
         ]);
 
-        self::assertSame('CREATE TABLE `table` (`name` varchar(255) NOT NULL);', $query->getQuery());
+        self::assertSame('CREATE TABLE `table` (`name` VARCHAR(255) NOT NULL);', $query->getQuery());
     }
 }

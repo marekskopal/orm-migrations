@@ -11,7 +11,7 @@ final class CreateTableMigration extends Migration
     public function up(): void
     {
         $this->table('table_a')
-            ->addColumn('id', 'int', false, true, true, null)
+            ->addColumn('id', 'int', autoincrement: true, primary: true)
             ->create();
     }
 

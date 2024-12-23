@@ -9,6 +9,7 @@ use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
 use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
 use MarekSkopal\ORM\Migrations\Schema\Provider\MySqlSchemaProvider;
 use MarekSkopal\ORM\Migrations\Schema\TableSchema;
+use MarekSkopal\ORM\Migrations\Utils\ColumnType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
@@ -17,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(DatabaseSchema::class)]
 #[UsesClass(TableSchema::class)]
 #[UsesClass(ColumnSchema::class)]
+#[UsesClass(ColumnType::class)]
 final class MySqlSchemaProviderTest extends TestCase
 {
     public function testGetDatabaseSchema(): void

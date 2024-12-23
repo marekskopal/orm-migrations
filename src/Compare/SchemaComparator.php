@@ -34,14 +34,7 @@ class SchemaComparator
 
             if ($tableDatabase === null) {
                 $tablesToCreate[] = new CompareResultTable($tableOrm->name, array_values(array_map(
-                    fn (ColumnSchema $column) => new CompareResultColumn(
-                        name: $column->name,
-                        type: $column->type,
-                        nullable: $column->nullable,
-                        autoincrement: $column->autoincrement,
-                        primary: $column->primary,
-                        default: $column->default,
-                    ),
+                    fn (ColumnSchema $column) => CompareResultColumn::fromColumnSchema($column),
                     $tableOrm->columns,
                 )), [], []);
                 continue;
@@ -75,28 +68,14 @@ class SchemaComparator
                 continue;
             }
 
-            $columnsToDrop[] = new CompareResultColumn(
-                name: $columnDatabase->name,
-                type: $columnDatabase->type,
-                nullable: $columnDatabase->nullable,
-                autoincrement: $columnDatabase->autoincrement,
-                primary: $columnDatabase->primary,
-                default: $columnDatabase->default,
-            );
+            $columnsToDrop[] = CompareResultColumn::fromColumnSchema($columnDatabase);
         }
 
         foreach ($tableOrm->columns as $columnOrm) {
             $columnDatabase = $tableDatabase->columns[$columnOrm->name] ?? null;
 
             if ($columnDatabase === null) {
-                $columnsToCreate[] = new CompareResultColumn(
-                    name: $columnOrm->name,
-                    type: $columnOrm->type,
-                    nullable: $columnOrm->nullable,
-                    autoincrement: $columnOrm->autoincrement,
-                    primary: $columnOrm->primary,
-                    default: $columnOrm->default,
-                );
+                $columnsToCreate[] = CompareResultColumn::fromColumnSchema($columnOrm);
                 continue;
             }
 
@@ -124,13 +103,6 @@ class SchemaComparator
             return null;
         }
 
-        return new CompareResultColumn(
-            $tableOrm->name,
-            $tableOrm->type,
-            $tableOrm->nullable,
-            $tableOrm->autoincrement,
-            $tableOrm->primary,
-            $tableOrm->default,
-        );
+        return CompareResultColumn::fromColumnSchema($tableOrm);
     }
 }
