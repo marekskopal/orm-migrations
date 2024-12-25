@@ -52,7 +52,7 @@ readonly class MigrationGenerator
                 $this->addColumnToMethodBody($column, $method);
             }
 
-            $method->addBody('    ->create();');
+            $method->addBody("    ->create();\n");
         }
 
         foreach ($compareResult->tablesToDrop as $table) {
@@ -79,7 +79,7 @@ readonly class MigrationGenerator
         $method = $class->addMethod('down');
         $method->setReturnType('void');
 
-        foreach ($compareResult->tablesToCreate as $table) {
+        foreach (array_reverse($compareResult->tablesToCreate) as $table) {
             $method->addBody(sprintf('$this->table(\'%s\')->drop();', $table->name));
         }
 

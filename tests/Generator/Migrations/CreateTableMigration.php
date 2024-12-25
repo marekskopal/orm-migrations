@@ -13,10 +13,15 @@ final class CreateTableMigration extends Migration
         $this->table('table_a')
             ->addColumn('id', 'int', autoincrement: true, primary: true)
             ->create();
+
+        $this->table('table_b')
+            ->addColumn('id', 'int', autoincrement: true, primary: true)
+            ->create();
     }
 
     public function down(): void
     {
+        $this->table('table_b')->drop();
         $this->table('table_a')->drop();
     }
 }
