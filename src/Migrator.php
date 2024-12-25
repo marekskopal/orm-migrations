@@ -30,8 +30,8 @@ readonly class Migrator
         $databaseSchema = new MySqlSchemaProvider()->getDatabaseSchema($this->database);
 
         $compareResult = $schemaComparator->compare(
-            new OrmSchemaConverter()->convert($schema),
             $databaseSchema,
+            new OrmSchemaConverter()->convert($schema),
         );
 
         $migrationGenerator = new MigrationGenerator($this->path);
