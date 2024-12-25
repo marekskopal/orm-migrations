@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(CreateTable::class)]
 #[UsesClass(AddColumn::class)]
-class CreateTableTest extends TestCase
+final class CreateTableTest extends TestCase
 {
     public function testGetQuery(): void
     {

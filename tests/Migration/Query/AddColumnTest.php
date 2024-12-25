@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(AddColumn::class)]
-class AddColumnTest extends TestCase
+final class AddColumnTest extends TestCase
 {
     /** @param list<string> $enum */
     #[TestWith(['id', 'int', false, false, false, null, null, null, null, null, '`id` INT NOT NULL'])]

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(CompareResultTable::class)]
 #[UsesClass(CompareResultColumn::class)]
 #[UsesClass(StringUtils::class)]
-class MigrationGeneratorTest extends TestCase
+final class MigrationGeneratorTest extends TestCase
 {
     public function testGenerateCreateTable(): void
     {

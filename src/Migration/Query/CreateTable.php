@@ -11,14 +11,15 @@ readonly class CreateTable implements QueryInterface
     /**
      * @param string $name
      * @param list<AddColumn> $columns
+     * @param list<AddForeignKey> $foreignKeys
      */
-    public function __construct(public string $name, public array $columns)
+    public function __construct(public string $name, public array $columns, public array $foreignKeys = [])
     {
     }
 
     public function getQuery(): string
     {
-        return sprintf('CREATE TABLE %s (%s);', NameUtils::escape($this->name), $this->getColumnsQuery());
+        return sprintf('CREATE TABLE %s (%s);', NameUtils::escape($this->name), $this->getColumnsQuery() . $this->getForeignKeysQuery());
     }
 
     private function getColumnsQuery(): string
@@ -30,5 +31,16 @@ readonly class CreateTable implements QueryInterface
         }
 
         return implode(', ', $columns);
+    }
+
+    private function getForeignKeysQuery(): string
+    {
+        $foreignKeys = [];
+
+        foreach ($this->foreignKeys as $foreignKey) {
+            $foreignKeys[] = $foreignKey->getQuery();
+        }
+
+        return implode(', ', $foreignKeys);
     }
 }

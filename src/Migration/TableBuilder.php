@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Migration;
 
 use MarekSkopal\ORM\Migrations\Migration\Query\AddColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\AddForeignKey;
+use MarekSkopal\ORM\Migrations\Migration\Query\AddIndex;
 use MarekSkopal\ORM\Migrations\Migration\Query\CreateTable;
 use MarekSkopal\ORM\Migrations\Migration\Query\DropColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\DropForeignKey;
+use MarekSkopal\ORM\Migrations\Migration\Query\DropIndex;
 use MarekSkopal\ORM\Migrations\Migration\Query\DropTable;
+use MarekSkopal\ORM\Migrations\Migration\Query\Enum\ReferenceOptionEnum;
 use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
 use PDO;
 
@@ -46,6 +51,41 @@ class TableBuilder
         return $this;
     }
 
+    /** @param list<string> $columns */
+    public function addIndex(array $columns, string $name, bool $unique): self
+    {
+        $this->queries[] = new AddIndex($this->name, $columns, $name, $unique);
+
+        return $this;
+    }
+
+    public function dropIndex(string $name): self
+    {
+        $this->queries[] = new DropIndex($name);
+
+        return $this;
+    }
+
+    public function addForeignKey(
+        string $column,
+        string $referenceTable,
+        string $referenceColumn,
+        ?string $name = null,
+        ReferenceOptionEnum $onDelete = ReferenceOptionEnum::Cascade,
+        ReferenceOptionEnum $onUpdate = ReferenceOptionEnum::Cascade,
+    ): self {
+        $this->queries[] = new AddForeignKey($column, $referenceTable, $referenceColumn, $name, $onDelete, $onUpdate);
+
+        return $this;
+    }
+
+    public function dropForeignKey(string $column): self
+    {
+        $this->queries[] = new DropForeignKey($column);
+
+        return $this;
+    }
+
     public function execute(): void
     {
         foreach ($this->queries as $query) {
@@ -55,8 +95,18 @@ class TableBuilder
 
     public function create(): void
     {
-        $query = new CreateTable($this->name, array_values(array_filter($this->queries, fn ($query) => $query instanceof AddColumn)));
-        $this->executeQuery($query);
+        $createTableQuery = new CreateTable(
+            $this->name,
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof AddColumn)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof AddForeignKey)),
+        );
+        $this->executeQuery($createTableQuery);
+
+        foreach ($this->queries as $query) {
+            if ($query instanceof AddIndex) {
+                $this->executeQuery($query);
+            }
+        }
     }
 
     public function drop(): void
