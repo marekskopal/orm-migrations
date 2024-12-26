@@ -88,9 +88,17 @@ final class SchemaComparatorTest extends TestCase
         $schemaOrm = new DatabaseSchema([
             'table_b' => new TableSchema('table_b', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
+                'table_b_id' => ColumnSchemaFixture::create(name: 'table_b_id', type: 'int'),
+            ], [], [
+                'table_b_id' => ForeignKeySchemaFixture::create('table_b_id', 'table_b', 'id'),
+            ]),
+            'table_c' => new TableSchema('table_c', [
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'table_a_id' => ColumnSchemaFixture::create(name: 'table_a_id', type: 'int'),
+                'table_b_id' => ColumnSchemaFixture::create(name: 'table_b_id', type: 'int'),
             ], [], [
                 'table_a_id' => ForeignKeySchemaFixture::create(),
+                'table_b_id' => ForeignKeySchemaFixture::create('table_b_id', 'table_b', 'id'),
             ]),
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
@@ -99,9 +107,10 @@ final class SchemaComparatorTest extends TestCase
 
         $result = $comparator->compare($schemaDatabase, $schemaOrm);
 
-        self::assertCount(2, $result->tablesToCreate);
+        self::assertCount(3, $result->tablesToCreate);
         self::assertSame('table_a', $result->tablesToCreate[0]->name);
         self::assertSame('table_b', $result->tablesToCreate[1]->name);
+        self::assertSame('table_c', $result->tablesToCreate[2]->name);
     }
 
     public function testCompareDropTable(): void

@@ -71,38 +71,63 @@ class SchemaComparator
             $tablesToAlter[] = $compareResultTable;
         }
 
-        usort($tablesToCreate, fn (CompareResultTable $a, CompareResultTable $b): int => $this->sortTablesToCreate($a, $b));
+        $tablesToCreate = $this->sortTablesToCreate($tablesToCreate);
 
         return new CompareResult($tablesToCreate, $tablesToDrop, $tablesToAlter);
     }
 
-    private function sortTablesToCreate(CompareResultTable $a, CompareResultTable $b): int
+    /**
+     * @param list<CompareResultTable> $tablesToCreate
+     * @return list<CompareResultTable>
+     */
+    private function sortTablesToCreate(array $tablesToCreate): array
     {
-        if (count($a->foreignKeysToCreate) === 0 && count($b->foreignKeysToCreate) === 0) {
-            return 0;
-        }
+        $sortedTablesToCreate = [];
 
-        if (count($a->foreignKeysToCreate) === 0) {
-            return -1;
-        }
-
-        if (count($b->foreignKeysToCreate) === 0) {
-            return 1;
-        }
-
-        foreach ($a->foreignKeysToCreate as $foreignKeyA) {
-            if ($foreignKeyA->referenceTable === $b->name) {
-                return 1;
+        foreach ($tablesToCreate as $key => $tableToCreate) {
+            if (count($tableToCreate->foreignKeysToCreate) === 0) {
+                $sortedTablesToCreate[$tableToCreate->name] = $tableToCreate;
+                unset($tablesToCreate[$key]);
             }
         }
 
-        foreach ($b->foreignKeysToCreate as $foreignKeyB) {
-            if ($foreignKeyB->referenceTable === $a->name) {
-                return -1;
+        foreach ($tablesToCreate as $key => $tableToCreate) {
+            $hasOnlyForeignKeysToSelf = true;
+            $foreignKeysToCreate = $tableToCreate->foreignKeysToCreate;
+            foreach ($foreignKeysToCreate as $foreignKeyToCreate) {
+                if ($foreignKeyToCreate->referenceTable !== $tableToCreate->name) {
+                    $hasOnlyForeignKeysToSelf = false;
+                    break;
+                }
+            }
+            if (!$hasOnlyForeignKeysToSelf) {
+                continue;
+            }
+
+            $sortedTablesToCreate[$tableToCreate->name] = $tableToCreate;
+            unset($tablesToCreate[$key]);
+        }
+
+        while (count($tablesToCreate) > 0) {
+            foreach ($tablesToCreate as $key => $tableToCreate) {
+                $hasAllForeignKeysTablesCreated = true;
+                $foreignKeysToCreate = $tableToCreate->foreignKeysToCreate;
+                foreach ($foreignKeysToCreate as $foreignKeyToCreate) {
+                    if (!array_key_exists($foreignKeyToCreate->referenceTable, $sortedTablesToCreate)) {
+                        $hasAllForeignKeysTablesCreated = false;
+                        break;
+                    }
+                }
+                if (!$hasAllForeignKeysTablesCreated) {
+                    continue;
+                }
+
+                $sortedTablesToCreate[$tableToCreate->name] = $tableToCreate;
+                unset($tablesToCreate[$key]);
             }
         }
 
-        return 0;
+        return array_values($sortedTablesToCreate);
     }
 
     private function compareTable(TableSchema $tableDatabase, TableSchema $tableOrm): CompareResultTable
