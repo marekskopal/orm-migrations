@@ -48,7 +48,10 @@ class OrmSchemaConverter
                 }
 
                 $relationEntitySchema = $schema->entities[$column->relationEntityClass];
-                $relationColumn = $relationEntitySchema->columns[$column->relationColumnName];
+                $relationColumn = $column->relationColumnName;
+                if ($relationColumn === null) {
+                    $relationColumn = $relationEntitySchema->getPrimaryColumn()->columnName;
+                }
 
                 $indexes[$column->columnName] = new IndexSchema(
                     columns: [$column->columnName],
@@ -59,10 +62,10 @@ class OrmSchemaConverter
                 $foreignKeys[$column->columnName] = new ForeignKeySchema(
                     column: $column->columnName,
                     referenceTable: $relationEntitySchema->table,
-                    referenceColumn: $relationColumn->columnName,
+                    referenceColumn: $relationColumn,
                     name: implode(
                         '_',
-                        [$entity->table, $column->columnName, $relationEntitySchema->table, $column->relationColumnName, 'fk'],
+                        [$entity->table, $column->columnName, $relationEntitySchema->table, $relationColumn, 'fk'],
                     ),
                 );
             }
