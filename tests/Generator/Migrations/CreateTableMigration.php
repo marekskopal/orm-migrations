@@ -16,6 +16,9 @@ final class CreateTableMigration extends Migration
 
         $this->table('table_b')
             ->addColumn('id', 'int', autoincrement: true, primary: true)
+            ->addColumn('table_a_id', 'int', autoincrement: true)
+            ->addIndex(['table_a_id'], 'table_b_table_a_id_index', false)
+            ->addForeignKey('table_a_id', 'table_a', 'id', 'table_b_table_a_id_fk')
             ->create();
     }
 

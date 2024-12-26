@@ -8,9 +8,11 @@ use BackedEnum;
 
 class StringUtils
 {
-    public static function toCode(string|int|float|bool|BackedEnum|null $value): string
+    /** @param string|int|float|bool|BackedEnum|array<string>|null $value */
+    public static function toCode(string|int|float|bool|BackedEnum|array|null $value): string
     {
         return match (true) {
+            is_array($value) => '[' . implode(', ', array_map(fn ($v) => self::toCode($v), $value)) . ']',
             is_string($value) => '\'' . $value . '\'',
             is_int($value) => (string) $value,
             is_float($value) => (string) $value,

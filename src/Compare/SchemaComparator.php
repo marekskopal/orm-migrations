@@ -45,16 +45,16 @@ class SchemaComparator
                     )),
                     columnsToDrop: [],
                     columnsToAlter: [],
-                    indexToCreate: array_values(array_map(
+                    indexesToCreate: array_values(array_map(
                         fn (IndexSchema $index) => CompareResultIndex::fromIndexSchema($index),
                         $tableOrm->indexes,
                     )),
-                    indexToDrop: [],
-                    foreignKeyToCreate: array_values(array_map(
+                    indexesToDrop: [],
+                    foreignKeysToCreate: array_values(array_map(
                         fn (ForeignKeySchema $foreignKey) => CompareResultForeignKey::fromForeignKeySchema($foreignKey),
                         $tableOrm->foreignKeys,
                     )),
-                    foreignKeyToDrop: [],
+                    foreignKeysToDrop: [],
                 );
                 continue;
             }
@@ -71,7 +71,38 @@ class SchemaComparator
             $tablesToAlter[] = $compareResultTable;
         }
 
+        usort($tablesToCreate, fn (CompareResultTable $a, CompareResultTable $b): int => $this->sortTablesToCreate($a, $b));
+
         return new CompareResult($tablesToCreate, $tablesToDrop, $tablesToAlter);
+    }
+
+    private function sortTablesToCreate(CompareResultTable $a, CompareResultTable $b): int
+    {
+        if (count($a->foreignKeysToCreate) === 0 && count($b->foreignKeysToCreate) === 0) {
+            return 0;
+        }
+
+        if (count($a->foreignKeysToCreate) === 0) {
+            return -1;
+        }
+
+        if (count($b->foreignKeysToCreate) === 0) {
+            return 1;
+        }
+
+        foreach ($a->foreignKeysToCreate as $foreignKeyA) {
+            if ($foreignKeyA->referenceTable === $b->name) {
+                return 1;
+            }
+        }
+
+        foreach ($b->foreignKeysToCreate as $foreignKeyB) {
+            if ($foreignKeyB->referenceTable === $a->name) {
+                return -1;
+            }
+        }
+
+        return 0;
     }
 
     private function compareTable(TableSchema $tableDatabase, TableSchema $tableOrm): CompareResultTable
@@ -81,10 +112,10 @@ class SchemaComparator
             columnsToCreate: $this->compareTableColumnToCreate($tableDatabase, $tableOrm),
             columnsToDrop: $this->compareTableColumnToDrop($tableDatabase, $tableOrm),
             columnsToAlter: $this->compareTableColumnToAlter($tableDatabase, $tableOrm),
-            indexToCreate: $this->compareTableIndexToCreate($tableDatabase, $tableOrm),
-            indexToDrop: $this->compareTableIndexToDrop($tableDatabase, $tableOrm),
-            foreignKeyToCreate: $this->compareTableForeignKeyToCreate($tableDatabase, $tableOrm),
-            foreignKeyToDrop: $this->compareTableForeignKeyToDrop($tableDatabase, $tableOrm),
+            indexesToCreate: $this->compareTableIndexToCreate($tableDatabase, $tableOrm),
+            indexesToDrop: $this->compareTableIndexToDrop($tableDatabase, $tableOrm),
+            foreignKeysToCreate: $this->compareTableForeignKeyToCreate($tableDatabase, $tableOrm),
+            foreignKeysToDrop: $this->compareTableForeignKeyToDrop($tableDatabase, $tableOrm),
         );
     }
 

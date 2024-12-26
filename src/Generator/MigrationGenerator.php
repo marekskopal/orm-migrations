@@ -6,6 +6,8 @@ namespace MarekSkopal\ORM\Migrations\Generator;
 
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResult;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultColumn;
+use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultForeignKey;
+use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultIndex;
 use MarekSkopal\ORM\Migrations\Migration\Migration;
 use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 use Nette\PhpGenerator\ClassType;
@@ -50,6 +52,14 @@ readonly class MigrationGenerator
 
             foreach ($table->columnsToCreate as $column) {
                 $this->addColumnToMethodBody($column, $method);
+            }
+
+            foreach ($table->indexesToCreate as $index) {
+                $this->addIndexToMethodBody($index, $method);
+            }
+
+            foreach ($table->foreignKeysToCreate as $foreignKey) {
+                $this->addForeignKeyToMethodBody($foreignKey, $method);
             }
 
             $method->addBody("    ->create();\n");
@@ -138,6 +148,35 @@ readonly class MigrationGenerator
         if ($column->default !== null) {
             $code .= ', default: ' . StringUtils::toCode($column->default);
         }
+
+        $code .= ')';
+
+        $method->addBody($code);
+    }
+
+    private function addIndexToMethodBody(CompareResultIndex $index, Method $method): void
+    {
+        $code = sprintf(
+            '    ->addIndex(%s, %s, %s',
+            StringUtils::toCode($index->columns),
+            StringUtils::toCode($index->name),
+            StringUtils::toCode($index->unique),
+        );
+
+        $code .= ')';
+
+        $method->addBody($code);
+    }
+
+    private function addForeignKeyToMethodBody(CompareResultForeignKey $foreignKey, Method $method): void
+    {
+        $code = sprintf(
+            '    ->addForeignKey(%s, %s, %s, %s',
+            StringUtils::toCode($foreignKey->column),
+            StringUtils::toCode($foreignKey->referenceTable),
+            StringUtils::toCode($foreignKey->referenceColumn),
+            StringUtils::toCode($foreignKey->name),
+        );
 
         $code .= ')';
 

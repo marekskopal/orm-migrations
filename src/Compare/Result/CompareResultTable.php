@@ -10,20 +10,20 @@ readonly class CompareResultTable
      * @param list<CompareResultColumn> $columnsToCreate
      * @param list<CompareResultColumn> $columnsToDrop
      * @param list<CompareResultColumn> $columnsToAlter
-     * @param list<CompareResultIndex> $indexToCreate
-     * @param list<CompareResultIndex> $indexToDrop
-     * @param list<CompareResultForeignKey> $foreignKeyToCreate
-     * @param list<CompareResultForeignKey> $foreignKeyToDrop
+     * @param list<CompareResultIndex> $indexesToCreate
+     * @param list<CompareResultIndex> $indexesToDrop
+     * @param list<CompareResultForeignKey> $foreignKeysToCreate
+     * @param list<CompareResultForeignKey> $foreignKeysToDrop
      */
     public function __construct(
         public string $name,
         public array $columnsToCreate,
         public array $columnsToDrop,
         public array $columnsToAlter,
-        public array $indexToCreate,
-        public array $indexToDrop,
-        public array $foreignKeyToCreate,
-        public array $foreignKeyToDrop,
+        public array $indexesToCreate,
+        public array $indexesToDrop,
+        public array $foreignKeysToCreate,
+        public array $foreignKeysToDrop,
     ) {
     }
 }

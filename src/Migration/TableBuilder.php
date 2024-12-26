@@ -54,7 +54,7 @@ class TableBuilder
     /** @param list<string> $columns */
     public function addIndex(array $columns, string $name, bool $unique): self
     {
-        $this->queries[] = new AddIndex($this->name, $columns, $name, $unique);
+        $this->queries[] = new AddIndex($columns, $name, $unique);
 
         return $this;
     }
