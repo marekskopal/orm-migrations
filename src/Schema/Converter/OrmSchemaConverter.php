@@ -6,6 +6,8 @@ namespace MarekSkopal\ORM\Migrations\Schema\Converter;
 
 use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
 use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
+use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
+use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
 use MarekSkopal\ORM\Migrations\Schema\TableSchema;
 use MarekSkopal\ORM\Schema\Schema;
 
@@ -36,7 +38,36 @@ class OrmSchemaConverter
                 );
             }
 
-            $tables[$entity->table] = new TableSchema($entity->table, $columns);
+            $indexes = [];
+
+            $foreignKeys = [];
+
+            foreach ($entity->columns as $column) {
+                if ($column->relationType === null) {
+                    continue;
+                }
+
+                $relationEntitySchema = $schema->entities[$column->relationEntityClass];
+                $relationColumn = $relationEntitySchema->columns[$column->relationColumnName];
+
+                $indexes[$column->columnName] = new IndexSchema(
+                    columns: [$column->columnName],
+                    name: implode('_', [$entity->table, $column->columnName, 'index']),
+                    unique: false,
+                );
+
+                $foreignKeys[$column->columnName] = new ForeignKeySchema(
+                    column: $column->columnName,
+                    referenceTable: $relationEntitySchema->table,
+                    referenceColumn: $relationColumn->columnName,
+                    name: implode(
+                        '_',
+                        [$entity->table, $column->columnName, $relationEntitySchema->table, $column->relationColumnName, 'fk'],
+                    ),
+                );
+            }
+
+            $tables[$entity->table] = new TableSchema($entity->table, $columns, $indexes, $foreignKeys);
         }
 
         return new DatabaseSchema($tables);

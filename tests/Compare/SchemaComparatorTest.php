@@ -33,7 +33,7 @@ final class SchemaComparatorTest extends TestCase
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $schemaOrm = clone $schemaDatabase;
@@ -53,18 +53,18 @@ final class SchemaComparatorTest extends TestCase
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
             'table_b' => new TableSchema('table_b', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $result = $comparator->compare($schemaDatabase, $schemaOrm);
@@ -82,18 +82,18 @@ final class SchemaComparatorTest extends TestCase
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
             'table_b' => new TableSchema('table_b', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $result = $comparator->compare($schemaDatabase, $schemaOrm);
@@ -111,7 +111,7 @@ final class SchemaComparatorTest extends TestCase
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
@@ -119,7 +119,7 @@ final class SchemaComparatorTest extends TestCase
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
                 'column_c' => ColumnSchemaFixture::create(name: 'column_c', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $result = $comparator->compare($schemaDatabase, $schemaOrm);
@@ -140,13 +140,13 @@ final class SchemaComparatorTest extends TestCase
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-            ]),
+            ], [], []),
         ]);
 
         $result = $comparator->compare($schemaDatabase, $schemaOrm);
@@ -167,14 +167,14 @@ final class SchemaComparatorTest extends TestCase
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-            ]),
+            ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
                 'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
                 'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'int'),
-            ]),
+            ], [], []),
         ]);
 
         $result = $comparator->compare($schemaDatabase, $schemaOrm);

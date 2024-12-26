@@ -11,5 +11,8 @@ CREATE TABLE `table_a` (
 CREATE TABLE `table_b` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `table_a_id` int(11) NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `table_a_id` (`table_a_id`),
+    CONSTRAINT `table_b_table_a_id_table_a_id_fk` FOREIGN KEY (`table_a_id`) REFERENCES `table_a` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

@@ -28,10 +28,10 @@ final class MigrationGeneratorTest extends TestCase
         $compareResult = new CompareResult([
             new CompareResultTable('table_a', [
                 new CompareResultColumn('id', 'int', false, true, true, null, null, null, null),
-            ], [], []),
+            ], [], [], [], [], [], []),
             new CompareResultTable('table_b', [
                 new CompareResultColumn('id', 'int', false, true, true, null, null, null, null),
-            ], [], []),
+            ], [], [], [], [], [], []),
         ], [], []);
 
         $migrationGenerator->generate($compareResult, 'CreateTableMigration', 'MarekSkopal\ORM\Migrations\Tests\Generator\Migrations');
