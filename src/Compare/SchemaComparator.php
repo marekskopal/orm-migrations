@@ -108,7 +108,8 @@ class SchemaComparator
             unset($tablesToCreate[$key]);
         }
 
-        while (count($tablesToCreate) > 0) {
+        $maxIterations = count($tablesToCreate);
+        for ($i = 0; count($tablesToCreate) > 0 && $i < $maxIterations; $i++) {
             foreach ($tablesToCreate as $key => $tableToCreate) {
                 $hasAllForeignKeysTablesCreated = true;
                 $foreignKeysToCreate = $tableToCreate->foreignKeysToCreate;
