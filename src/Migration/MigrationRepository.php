@@ -9,6 +9,8 @@ use PDO;
 
 readonly class MigrationRepository
 {
+    public const string MigrationTable = '__migrations';
+
     public function __construct(private PDO $pdo)
     {
     }
@@ -17,7 +19,7 @@ readonly class MigrationRepository
     {
         $this->pdo->query(
             'CREATE TABLE IF NOT EXISTS ' . NameUtils::escape(
-                '__migrations',
+                self::MigrationTable,
             ) . ' (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL)',
         );
     }
@@ -25,7 +27,7 @@ readonly class MigrationRepository
     /** @return list<array{id: int, name: string}> */
     public function getFinishedMigrations(): array
     {
-        $query = $this->pdo->query('SELECT * FROM ' . NameUtils::escape('__migrations'));
+        $query = $this->pdo->query('SELECT * FROM ' . NameUtils::escape(self::MigrationTable));
         if ($query === false) {
             throw new \RuntimeException('Failed to fetch migrations');
         }
@@ -36,6 +38,6 @@ readonly class MigrationRepository
 
     public function insertMigration(string $name): void
     {
-        $this->pdo->query('INSERT INTO ' . NameUtils::escape('__migrations') . ' (name) VALUES (\'' . $name . '\')');
+        $this->pdo->query('INSERT INTO ' . NameUtils::escape(self::MigrationTable) . ' (name) VALUES (\'' . $name . '\')');
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Schema\Provider;
 
 use MarekSkopal\ORM\Database\DatabaseInterface;
+use MarekSkopal\ORM\Migrations\Migration\MigrationRepository;
 use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
 use MarekSkopal\ORM\Migrations\Schema\Converter\Type\TypeConverterInterface;
 use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
@@ -43,6 +44,9 @@ class MySqlSchemaProvider implements SchemaProviderInterface
 
         foreach ($tables as $table) {
             $tableName = $table[0];
+            if ($tableName === MigrationRepository::MigrationTable) {
+                continue;
+            }
 
             $tablesSchema[$table[0]] = new TableSchema(
                 $tableName,
