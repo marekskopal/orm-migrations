@@ -68,4 +68,16 @@ final class MySqlTypeConverter implements TypeConverterInterface
             Type::Json => 'json',
         };
     }
+
+    public function sanitizeSize(Type $type, ?int $size): ?int
+    {
+        return match ($type) {
+            Type::SmallInt => $size > 5 ? 5 : $size ?? 5,
+            Type::Int => $size > 11 ? 11 : $size ?? 11,
+            Type::BigInt => $size > 20 ? 20 : $size ?? 20,
+            Type::String => $size > 255 ? 255 : $size ?? 255,
+            Type::Boolean => 1,
+            default => $size,
+        };
+    }
 }

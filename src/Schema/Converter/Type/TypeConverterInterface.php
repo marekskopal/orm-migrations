@@ -11,4 +11,6 @@ interface TypeConverterInterface
     public function convert(string $type): Type;
 
     public function convertToDatabase(Type $type): string;
+
+    public function sanitizeSize(Type $type, ?int $size): ?int;
 }

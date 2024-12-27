@@ -50,7 +50,7 @@ class TableBuilder
             nullable: $nullable,
             autoincrement: $autoincrement,
             primary: $primary,
-            size: $size,
+            size: $this->databaseProvider->getTypeConverter()->sanitizeSize($type, $size),
             precision: $precision,
             scale: $scale,
             enum: $enum,
