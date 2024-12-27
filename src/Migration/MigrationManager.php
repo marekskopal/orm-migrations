@@ -46,7 +46,10 @@ readonly class MigrationManager
             $migration->up();
             $this->migrationRepository->insertMigration($migration::class);
         } catch (\Throwable $e) {
-            $this->logger?->error($e->getMessage());
+            if ($this->logger === null) {
+                throw $e;
+            }
+            $this->logger->error($e->getMessage());
         }
     }
 }
