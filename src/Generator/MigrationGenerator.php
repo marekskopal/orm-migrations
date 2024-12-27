@@ -21,7 +21,7 @@ readonly class MigrationGenerator
     {
     }
 
-    public function generate(CompareResult $compareResult, string $name = 'Migration', string $namespace = 'Migrations'): void
+    public function generate(CompareResult $compareResult, string $name = 'Migration', string $namespace = 'Migrations'): string
     {
         $phpFile = new PhpFile();
         $phpFile->setStrictTypes();
@@ -40,7 +40,11 @@ readonly class MigrationGenerator
         $printer = new PsrPrinter();
         $fileContent = $printer->printFile($phpFile);
 
-        file_put_contents(rtrim($this->path, '/') . '/' . $name . '.php', $fileContent);
+        $fileName = date('Ymd_His_') . $name . '.php';
+
+        file_put_contents(rtrim($this->path, '/') . '/' . $fileName, $fileContent);
+
+        return $fileName;
     }
 
     private function generateUpMethod(CompareResult $compareResult, ClassType $class): void

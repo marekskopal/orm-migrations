@@ -25,10 +25,12 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(StringUtils::class)]
 final class MigrationGeneratorTest extends TestCase
 {
+    private const string MigrationsPath = __DIR__ . '/Migrations';
+    private const string MigrationsGeneratedPath = __DIR__ . '/Migrations/Generated';
+
     public function testGenerateCreateTable(): void
     {
-        $migrationsPath = __DIR__ . '/Migrations';
-        $migrationGenerator = new MigrationGenerator($migrationsPath . '/Generated');
+        $migrationGenerator = new MigrationGenerator(self::MigrationsGeneratedPath);
 
         $compareResult = new CompareResult([
             new CompareResultTable(
@@ -62,12 +64,31 @@ final class MigrationGeneratorTest extends TestCase
             ),
         ], [], []);
 
-        $migrationGenerator->generate($compareResult, 'CreateTableMigration', 'MarekSkopal\ORM\Migrations\Tests\Generator\Migrations');
+        $fileName = $migrationGenerator->generate(
+            $compareResult,
+            'CreateTableMigration',
+            'MarekSkopal\ORM\Migrations\Tests\Generator\Migrations',
+        );
 
-        self::assertFileExists($migrationsPath . '/CreateTableMigration.php');
+        self::assertFileExists(self::MigrationsGeneratedPath . '/' . $fileName);
 
-        $migrationContent = file_get_contents($migrationsPath . '/Generated/CreateTableMigration.php');
-        $expectedContent = file_get_contents($migrationsPath . '/CreateTableMigration.php');
+        $migrationContent = file_get_contents(self::MigrationsGeneratedPath . '/' . $fileName);
+        $expectedContent = file_get_contents(self::MigrationsPath . '/CreateTableMigration.php');
         self::assertSame($migrationContent, $expectedContent);
+    }
+
+    protected function tearDown(): void
+    {
+        $files = scandir(self::MigrationsGeneratedPath);
+        if ($files === false) {
+            return;
+        }
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..' || $file === '.gitignore') {
+                continue;
+            }
+
+            unlink(self::MigrationsGeneratedPath . '/' . $file);
+        }
     }
 }

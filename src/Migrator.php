@@ -10,12 +10,14 @@ use MarekSkopal\ORM\Migrations\Compare\SchemaComparator;
 use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderFactory;
 use MarekSkopal\ORM\Migrations\Generator\MigrationGenerator;
 use MarekSkopal\ORM\Migrations\Migration\MigrationManager;
+use MarekSkopal\ORM\Migrations\Migration\MigrationRepository;
 use MarekSkopal\ORM\Migrations\Schema\Converter\OrmSchemaConverter;
 use MarekSkopal\ORM\Schema\Schema;
+use Psr\Log\LoggerInterface;
 
 readonly class Migrator
 {
-    public function __construct(private string $path, private DatabaseInterface $database,)
+    public function __construct(private string $path, private DatabaseInterface $database, private ?LoggerInterface $logger = null)
     {
     }
 
@@ -43,7 +45,9 @@ readonly class Migrator
     {
         $databaseProvider = new DatabaseProviderFactory()->create($this->database);
 
-        $migrationManager = new MigrationManager($databaseProvider, $this->path);
-        $migrationManager->migrate();
+        $migrationRepository = new MigrationRepository($databaseProvider->getDatabase()->getPdo());
+
+        $migrationManager = new MigrationManager($databaseProvider, $migrationRepository, $this->path, $this->logger);
+        $migrationManager->runAllMigrations();
     }
 }

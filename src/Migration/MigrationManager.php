@@ -5,57 +5,48 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Migration;
 
 use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
-use MarekSkopal\ORM\Schema\Builder\ClassScanner\ClassScanner;
-use Nette\Utils\Finder;
+use Psr\Log\LoggerInterface;
 
 readonly class MigrationManager
 {
-    private MigrationRepository $migrationRepository;
-
-    public function __construct(private DatabaseProviderInterface $databaseProvider, private string $path)
+    public function __construct(
+        private DatabaseProviderInterface $databaseProvider,
+        private MigrationRepository $migrationRepository,
+        private string $path,
+        private ?LoggerInterface $logger = null,
+    )
     {
-        $this->migrationRepository = new MigrationRepository($databaseProvider->getDatabase()->getPdo());
     }
 
-    public function migrate(): void
+    public function runAllMigrations(): void
     {
-        $migrationClasses = $this->getMigrationClasses();
+        $migrationClasses = new MigrationClassProvider($this->path)->getMigrationClasses();
         $unfinishedMigrationClasses = $migrationClasses;
 
         $this->migrationRepository->createMigrationTable();
 
         foreach ($this->migrationRepository->getFinishedMigrations() as $finishedMigration) {
-            unset($unfinishedMigrationClasses[$finishedMigration['name']]);
+            $key = array_find_key(
+                $unfinishedMigrationClasses,
+                fn(MigrationClass $unfinishedMigrationClass): bool => $unfinishedMigrationClass->class === $finishedMigration['name'],
+            );
+            unset($unfinishedMigrationClasses[$key]);
         }
 
         foreach ($unfinishedMigrationClasses as $unfinishedMigrationClass) {
-            $this->runMigration(new $unfinishedMigrationClass($this->databaseProvider));
-            $this->migrationRepository->insertMigration($unfinishedMigrationClass);
+            require_once $unfinishedMigrationClass->file;
+            $this->runMigration(new $unfinishedMigrationClass->class($this->databaseProvider));
         }
     }
 
-    private function runMigration(Migration $migration): void
+    public function runMigration(Migration $migration): void
     {
-        $migration->configure();
-        $migration->up();
-    }
-
-    /** @return array<class-string<Migration>> */
-    private function getMigrationClasses(): array
-    {
-        $migrationClasses = [];
-
-        $phpFiles = Finder::findFiles($this->path . '/**/*.php');
-        foreach ($phpFiles as $phpFile) {
-            $classScanner = new ClassScanner($phpFile->getRealPath());
-            foreach ($classScanner->findClasses() as $class) {
-                if (is_subclass_of($class, Migration::class)) {
-                    require_once $phpFile->getRealPath();
-                    $migrationClasses[] = $class;
-                }
-            }
+        try {
+            $migration->configure();
+            $migration->up();
+            $this->migrationRepository->insertMigration($migration::class);
+        } catch (\Throwable $e) {
+            $this->logger?->error($e->getMessage());
         }
-
-        return $migrationClasses;
     }
 }
