@@ -9,6 +9,7 @@ use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
 use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
 use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
 use MarekSkopal\ORM\Migrations\Schema\TableSchema;
+use MarekSkopal\ORM\Migrations\Utils\EnumUtils;
 use MarekSkopal\ORM\Schema\Schema;
 
 class OrmSchemaConverter
@@ -30,10 +31,7 @@ class OrmSchemaConverter
                     size: $column->size,
                     precision: $column->precision,
                     scale: $column->scale,
-                    enum: $column->enumClass !== null ? array_map(
-                        fn($case) => (string) $case,
-                        array_column($column->enumClass::cases(), 'value'),
-                    ) : null,
+                    enum: $column->enumClass !== null ? EnumUtils::getEnumValues($column->enumClass) : null,
                     default: $column->default,
                 );
             }

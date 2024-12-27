@@ -18,7 +18,7 @@ class StringUtils
             is_float($value) => (string) $value,
             is_bool($value) => $value ? 'true' : 'false',
             is_null($value) => 'null',
-            $value instanceof BackedEnum => (string) $value->value,
+            $value instanceof BackedEnum => '\'' . $value->value . '\'',
         };
     }
 }

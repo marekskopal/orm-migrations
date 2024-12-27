@@ -11,10 +11,13 @@ use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultForeignKey;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultIndex;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultTable;
 use MarekSkopal\ORM\Migrations\Generator\MigrationGenerator;
+use MarekSkopal\ORM\Migrations\Tests\Fixtures\CompareResultColumnFixture;
+use MarekSkopal\ORM\Migrations\Tests\Fixtures\TestEnum;
 use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use UnitEnum;
 
 #[CoversClass(MigrationGenerator::class)]
 #[UsesClass(CompareResult::class)]
@@ -36,7 +39,41 @@ final class MigrationGeneratorTest extends TestCase
             new CompareResultTable(
                 name: 'table_a',
                 columnsToCreate: [
-                    new CompareResultColumn('id', Type::Int, false, true, true, null, null, null, null),
+                    CompareResultColumnFixture::create(
+                        name: 'id',
+                        type: Type::Int,
+                        primary: true,
+                        autoincrement: true,
+                    ),
+                    CompareResultColumnFixture::create(
+                        name: 'name',
+                        type: Type::String,
+                        nullable: true,
+                        size: 255,
+                    ),
+                    CompareResultColumnFixture::create(
+                        name: 'address',
+                        type: Type::String,
+                        size: 50,
+                        default: 'New York',
+                    ),
+                    CompareResultColumnFixture::create(
+                        name: 'score',
+                        type: Type::Int,
+                        size: 10,
+                    ),
+                    CompareResultColumnFixture::create(
+                        name: 'price',
+                        type: Type::Decimal,
+                        precision: 10,
+                        scale: 2,
+                    ),
+                    CompareResultColumnFixture::create(
+                        name: 'type',
+                        type: Type::Enum,
+                        enum: array_map(fn(UnitEnum $item) => $item->value, TestEnum::cases()),
+                        default: TestEnum::A,
+                    ),
                 ],
                 columnsToDrop: [],
                 columnsToAlter: [],
@@ -48,8 +85,16 @@ final class MigrationGeneratorTest extends TestCase
             new CompareResultTable(
                 name: 'table_b',
                 columnsToCreate: [
-                    new CompareResultColumn('id', Type::Int, false, true, true, null, null, null, null),
-                    new CompareResultColumn('table_a_id', Type::Int, false, true, false, null, null, null, null),
+                    CompareResultColumnFixture::create(
+                        name: 'id',
+                        type: Type::Int,
+                        primary: true,
+                        autoincrement: true,
+                    ),
+                    CompareResultColumnFixture::create(
+                        name: 'table_a_id',
+                        type: Type::Int,
+                    ),
                 ],
                 columnsToDrop: [],
                 columnsToAlter: [],

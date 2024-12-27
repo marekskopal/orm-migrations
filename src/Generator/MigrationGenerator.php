@@ -155,6 +155,10 @@ readonly class MigrationGenerator
             $code .= ', scale: ' . StringUtils::toCode($column->scale);
         }
 
+        if ($column->enum !== null) {
+            $code .= ', enum: ' . StringUtils::toCode($column->enum);
+        }
+
         if ($column->default !== null) {
             $code .= ', default: ' . StringUtils::toCode($column->default);
         }

@@ -132,6 +132,7 @@ class TableBuilder
 
         $affectedRows = $pdo->exec($query->getQuery());
         if ($affectedRows === false) {
+            /** @var array{0: string, 1: string, 2: string} $error */
             $error = $pdo->errorInfo();
 
             throw new \RuntimeException('Query failed: [' . $error[0] . ']: ' . $error[1] . ' - ' . $error[2]);

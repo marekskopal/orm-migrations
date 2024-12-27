@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Tests\Migration;
 
+use MarekSkopal\ORM\Database\DatabaseInterface;
 use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 use MarekSkopal\ORM\Migrations\Migration\Migration;
 use MarekSkopal\ORM\Migrations\Migration\MigrationClass;
@@ -15,6 +16,7 @@ use MarekSkopal\ORM\Migrations\Migration\Query\AddForeignKey;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddIndex;
 use MarekSkopal\ORM\Migrations\Migration\Query\CreateTable;
 use MarekSkopal\ORM\Migrations\Migration\TableBuilder;
+use PDO;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
@@ -52,7 +54,12 @@ final class MigrationManagerTest extends TestCase
 
     public function testRunAllMigrations(): void
     {
+        $pdo = $this->createMock(PDO::class);
+        $pdo->method('exec')->willReturn(1);
+        $database = $this->createMock(DatabaseInterface::class);
+        $database->method('getPdo')->willReturn($pdo);
         $databaseProvider = $this->createMock(DatabaseProviderInterface::class);
+        $databaseProvider->method('getDatabase')->willReturn($database);
         $logger = $this->createMock(LoggerInterface::class);
         $migrationRepository = $this->createMock(MigrationRepository::class);
         $migrationRepository->expects($this->once())->method('createMigrationTable');
