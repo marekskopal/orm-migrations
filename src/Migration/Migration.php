@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration;
 
-use PDO;
+use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 
 abstract class Migration
 {
-    public function __construct(protected readonly PDO $pdo)
+    public function __construct(protected readonly DatabaseProviderInterface $databaseProvider)
     {
     }
 
@@ -22,6 +22,6 @@ abstract class Migration
 
     protected function table(string $name): TableBuilder
     {
-        return new TableBuilder($this->pdo, $name);
+        return new TableBuilder($this->databaseProvider, $name);
     }
 }

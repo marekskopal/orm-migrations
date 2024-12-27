@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration;
 
+use MarekSkopal\ORM\Enum\Type;
+use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddColumn;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddForeignKey;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddIndex;
@@ -14,21 +16,20 @@ use MarekSkopal\ORM\Migrations\Migration\Query\DropIndex;
 use MarekSkopal\ORM\Migrations\Migration\Query\DropTable;
 use MarekSkopal\ORM\Migrations\Migration\Query\Enum\ReferenceOptionEnum;
 use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
-use PDO;
 
 class TableBuilder
 {
     /** @var list<QueryInterface> */
     private array $queries = [];
 
-    public function __construct(private readonly PDO $pdo, private readonly string $name)
+    public function __construct(private readonly DatabaseProviderInterface $databaseProvider, private readonly string $name)
     {
     }
 
     /** @param list<string>|null $enum */
     public function addColumn(
         string $name,
-        string $type,
+        Type|string $type,
         bool $nullable = false,
         bool $autoincrement = false,
         bool $primary = false,
@@ -39,7 +40,22 @@ class TableBuilder
         string|int|float|null $default = null,
     ): self
     {
-        $this->queries[] = new AddColumn($name, $type, $nullable, $autoincrement, $primary, $size, $precision, $scale, $enum, $default);
+        if (is_string($type)) {
+            $type = Type::from($type);
+        }
+
+        $this->queries[] = new AddColumn(
+            name: $name,
+            type: $this->databaseProvider->getTypeConverter()->convertToDatabase($type),
+            nullable: $nullable,
+            autoincrement: $autoincrement,
+            primary: $primary,
+            size: $size,
+            precision: $precision,
+            scale: $scale,
+            enum: $enum,
+            default: $default,
+        );
 
         return $this;
     }
@@ -117,6 +133,6 @@ class TableBuilder
 
     private function executeQuery(QueryInterface $query): void
     {
-        $this->pdo->exec($query->getQuery());
+        $this->databaseProvider->getDatabase()->getPdo()->exec($query->getQuery());
     }
 }

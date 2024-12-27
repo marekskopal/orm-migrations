@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration;
 
+use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 use MarekSkopal\ORM\Schema\Builder\ClassScanner\ClassScanner;
 use Nette\Utils\Finder;
-use PDO;
 
 readonly class MigrationManager
 {
     private MigrationRepository $migrationRepository;
 
-    public function __construct(private PDO $pdo, private string $path)
+    public function __construct(private DatabaseProviderInterface $databaseProvider, private string $path)
     {
-        $this->migrationRepository = new MigrationRepository($pdo);
+        $this->migrationRepository = new MigrationRepository($databaseProvider->getDatabase()->getPdo());
     }
 
     public function migrate(): void
@@ -29,7 +29,7 @@ readonly class MigrationManager
         }
 
         foreach ($unfinishedMigrationClasses as $unfinishedMigrationClass) {
-            $this->runMigration(new $unfinishedMigrationClass($this->pdo));
+            $this->runMigration(new $unfinishedMigrationClass($this->databaseProvider));
             $this->migrationRepository->insertMigration($unfinishedMigrationClass);
         }
     }

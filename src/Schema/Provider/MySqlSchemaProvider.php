@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Schema\Provider;
 
-use MarekSkopal\ORM\Database\MySqlDatabase;
+use MarekSkopal\ORM\Database\DatabaseInterface;
 use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
+use MarekSkopal\ORM\Migrations\Schema\Converter\Type\TypeConverterInterface;
 use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
 use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
 use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
@@ -14,21 +15,25 @@ use MarekSkopal\ORM\Migrations\Utils\ColumnType;
 use MarekSkopal\ORM\Utils\NameUtils;
 use PDO;
 
-class MySqlSchemaProvider
+class MySqlSchemaProvider implements SchemaProviderInterface
 {
-    public function getDatabaseSchema(MySqlDatabase $database): DatabaseSchema
+    public function __construct(private readonly DatabaseInterface $database, private readonly TypeConverterInterface $typeConverter)
+    {
+    }
+
+    public function getDatabaseSchema(): DatabaseSchema
     {
         return new DatabaseSchema(
-            $this->getTablesSchema($database),
+            $this->getTablesSchema(),
         );
     }
 
     /** @return array<string, TableSchema> */
-    private function getTablesSchema(MySqlDatabase $database): array
+    private function getTablesSchema(): array
     {
         $tablesSchema = [];
 
-        $tablesQuery = $database->getPdo()->query('SHOW FULL TABLES');
+        $tablesQuery = $this->database->getPdo()->query('SHOW FULL TABLES');
         if ($tablesQuery === false) {
             throw new \RuntimeException('Cannot get tables from database');
         }
@@ -41,9 +46,9 @@ class MySqlSchemaProvider
 
             $tablesSchema[$table[0]] = new TableSchema(
                 $tableName,
-                $this->getColumnsSchema($tableName, $database),
-                $this->getIndexesSchema($tableName, $database),
-                $this->getForeignKeysSchema($tableName, $database),
+                $this->getColumnsSchema($tableName),
+                $this->getIndexesSchema($tableName),
+                $this->getForeignKeysSchema($tableName),
             );
         }
 
@@ -51,9 +56,9 @@ class MySqlSchemaProvider
     }
 
     /** @return array<string, ColumnSchema> */
-    private function getColumnsSchema(string $tableName, MySqlDatabase $database): array
+    private function getColumnsSchema(string $tableName): array
     {
-        $query = $database->getPdo()->prepare('SHOW FULL COLUMNS FROM ' . NameUtils::escape($tableName));
+        $query = $this->database->getPdo()->prepare('SHOW FULL COLUMNS FROM ' . NameUtils::escape($tableName));
         $query->execute();
         if ($query === false) {
             throw new \RuntimeException('Cannot get columns from table ' . $tableName);
@@ -78,7 +83,7 @@ class MySqlSchemaProvider
 
             $columnsSchema[$column['Field']] = new ColumnSchema(
                 name: $column['Field'],
-                type: $columnType->type,
+                type: $this->typeConverter->convert($columnType->type),
                 nullable: $column['Null'] === 'YES',
                 autoincrement: $column['Extra'] === 'auto_increment',
                 primary: $column['Key'] === 'PRI',
@@ -94,9 +99,9 @@ class MySqlSchemaProvider
     }
 
     /** @return array<string, IndexSchema> */
-    private function getIndexesSchema(string $tableName, MySqlDatabase $database): array
+    private function getIndexesSchema(string $tableName): array
     {
-        $query = $database->getPdo()->prepare('SHOW INDEXES FROM ' . NameUtils::escape($tableName));
+        $query = $this->database->getPdo()->prepare('SHOW INDEXES FROM ' . NameUtils::escape($tableName));
         $query->execute();
         if ($query === false) {
             throw new \RuntimeException('Cannot get indexes from table ' . $tableName);
@@ -129,9 +134,9 @@ class MySqlSchemaProvider
     }
 
     /** @return array<string, ForeignKeySchema> */
-    private function getForeignKeysSchema(string $tableName, MySqlDatabase $database): array
+    private function getForeignKeysSchema(string $tableName): array
     {
-        $query = $database->getPdo()->prepare('SELECT * FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_NAME = :table_name');
+        $query = $this->database->getPdo()->prepare('SELECT * FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_NAME = :table_name');
         $query->execute([':table_name' => $tableName]);
         if ($query === false) {
             throw new \RuntimeException('Cannot get foreign keys from table ' . $tableName);

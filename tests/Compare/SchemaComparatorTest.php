@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Tests\Compare;
 
+use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResult;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultColumn;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultForeignKey;
@@ -36,8 +37,8 @@ final class SchemaComparatorTest extends TestCase
 
         $schemaDatabase = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
@@ -56,19 +57,19 @@ final class SchemaComparatorTest extends TestCase
 
         $schemaDatabase = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
             'table_b' => new TableSchema('table_b', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
@@ -87,21 +88,21 @@ final class SchemaComparatorTest extends TestCase
 
         $schemaOrm = new DatabaseSchema([
             'table_b' => new TableSchema('table_b', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'table_b_id' => ColumnSchemaFixture::create(name: 'table_b_id', type: 'int'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'table_b_id' => ColumnSchemaFixture::create(name: 'table_b_id', type: Type::Int),
             ], [], [
                 'table_b_id' => ForeignKeySchemaFixture::create('table_b_id', 'table_b', 'id'),
             ]),
             'table_c' => new TableSchema('table_c', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'table_a_id' => ColumnSchemaFixture::create(name: 'table_a_id', type: 'int'),
-                'table_b_id' => ColumnSchemaFixture::create(name: 'table_b_id', type: 'int'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'table_a_id' => ColumnSchemaFixture::create(name: 'table_a_id', type: Type::Int),
+                'table_b_id' => ColumnSchemaFixture::create(name: 'table_b_id', type: Type::Int),
             ], [], [
                 'table_a_id' => ForeignKeySchemaFixture::create(),
                 'table_b_id' => ForeignKeySchemaFixture::create('table_b_id', 'table_b', 'id'),
             ]),
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
             ], [], []),
         ]);
 
@@ -119,19 +120,19 @@ final class SchemaComparatorTest extends TestCase
 
         $schemaDatabase = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
             'table_b' => new TableSchema('table_b', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
@@ -148,16 +149,16 @@ final class SchemaComparatorTest extends TestCase
 
         $schemaDatabase = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
-                'column_c' => ColumnSchemaFixture::create(name: 'column_c', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
+                'column_c' => ColumnSchemaFixture::create(name: 'column_c', type: Type::String),
             ], [], []),
         ]);
 
@@ -177,14 +178,14 @@ final class SchemaComparatorTest extends TestCase
 
         $schemaDatabase = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
             ], [], []),
         ]);
 
@@ -204,15 +205,15 @@ final class SchemaComparatorTest extends TestCase
 
         $schemaDatabase = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'varchar'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::String),
             ], [], []),
         ]);
 
         $schemaOrm = new DatabaseSchema([
             'table_a' => new TableSchema('table_a', [
-                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: 'int'),
-                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: 'int'),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int),
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::Int),
             ], [], []),
         ]);
 

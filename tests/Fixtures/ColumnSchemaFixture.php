@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Tests\Fixtures;
 
 use BackedEnum;
+use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
 
 final class ColumnSchemaFixture
@@ -12,7 +13,7 @@ final class ColumnSchemaFixture
     /** @param list<string>|null $enum */
     public static function create(
         ?string $name = null,
-        ?string $type = null,
+        ?Type $type = null,
         ?bool $nullable = null,
         ?bool $autoincrement = null,
         ?bool $primary = null,
@@ -24,7 +25,7 @@ final class ColumnSchemaFixture
     ): ColumnSchema {
         return new ColumnSchema(
             name: $name ?? 'id',
-            type: $type ?? 'int',
+            type: $type ?? Type::Int,
             nullable: $nullable ?? false,
             autoincrement: $autoincrement ?? false,
             primary: $primary ?? false,

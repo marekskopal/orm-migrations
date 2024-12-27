@@ -6,6 +6,7 @@ namespace MarekSkopal\ORM\Migrations\Tests\Schema\Provider;
 
 use MarekSkopal\ORM\Database\MySqlDatabase;
 use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
+use MarekSkopal\ORM\Migrations\Schema\Converter\Type\MySqlTypeConverter;
 use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
 use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
 use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
@@ -17,6 +18,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(MySqlSchemaProvider::class)]
+#[UsesClass(MySqlTypeConverter::class)]
 #[UsesClass(DatabaseSchema::class)]
 #[UsesClass(TableSchema::class)]
 #[UsesClass(ColumnSchema::class)]
@@ -34,9 +36,9 @@ final class MySqlSchemaProviderTest extends TestCase
             database: (string) getenv('MYSQL_DATABASE'),
         );
 
-        $mySqlSchemaProvider = new MySqlSchemaProvider();
+        $mySqlSchemaProvider = new MySqlSchemaProvider($mySqlDatabase, new MySqlTypeConverter());
 
-        $databaseSchema = $mySqlSchemaProvider->getDatabaseSchema($mySqlDatabase);
+        $databaseSchema = $mySqlSchemaProvider->getDatabaseSchema();
 
         self::assertCount(2, $databaseSchema->tables);
         self::assertArrayHasKey('table_a', $databaseSchema->tables);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Tests\Generator;
 
+use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResult;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultColumn;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultForeignKey;
@@ -33,7 +34,7 @@ final class MigrationGeneratorTest extends TestCase
             new CompareResultTable(
                 name: 'table_a',
                 columnsToCreate: [
-                    new CompareResultColumn('id', 'int', false, true, true, null, null, null, null),
+                    new CompareResultColumn('id', Type::Int, false, true, true, null, null, null, null),
                 ],
                 columnsToDrop: [],
                 columnsToAlter: [],
@@ -45,8 +46,8 @@ final class MigrationGeneratorTest extends TestCase
             new CompareResultTable(
                 name: 'table_b',
                 columnsToCreate: [
-                    new CompareResultColumn('id', 'int', false, true, true, null, null, null, null),
-                    new CompareResultColumn('table_a_id', 'int', false, true, false, null, null, null, null),
+                    new CompareResultColumn('id', Type::Int, false, true, true, null, null, null, null),
+                    new CompareResultColumn('table_a_id', Type::Int, false, true, false, null, null, null, null),
                 ],
                 columnsToDrop: [],
                 columnsToAlter: [],

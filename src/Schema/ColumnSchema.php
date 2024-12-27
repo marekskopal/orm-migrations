@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Schema;
 
 use BackedEnum;
+use MarekSkopal\ORM\Enum\Type;
 
 readonly class ColumnSchema
 {
     /** @param list<string>|null $enum */
     public function __construct(
         public string $name,
-        public string $type,
+        public Type $type,
         public bool $nullable,
         public bool $autoincrement,
         public bool $primary,

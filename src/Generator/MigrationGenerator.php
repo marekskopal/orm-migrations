@@ -27,6 +27,7 @@ readonly class MigrationGenerator
         $phpFile->setStrictTypes();
 
         $namespace = $phpFile->addNamespace($namespace);
+        $namespace->addUse('MarekSkopal\ORM\Enum\Type');
         $namespace->addUse('MarekSkopal\ORM\Migrations\Migration\Migration');
 
         $class = $namespace->addClass($name);
@@ -97,7 +98,7 @@ readonly class MigrationGenerator
             $method->addBody(sprintf('$this->table(\'%s\')', $table->name));
 
             foreach ($table->columnsToCreate as $column) {
-                $method->addBody(sprintf('    ->addColumn(\'%s\', \'%s\')', $column->name, $column->type));
+                $this->addColumnToMethodBody($column, $method);
             }
 
             $method->addBody('    ->create();');
@@ -120,17 +121,10 @@ readonly class MigrationGenerator
 
     private function addColumnToMethodBody(CompareResultColumn $column, Method $method): void
     {
-        $type = $column->type;
-        if ($column->size !== null) {
-            $type .= '(' . $column->size . ')';
-        } elseif ($column->precision !== null && $column->scale !== null) {
-            $type .= '(' . $column->precision . ', ' . $column->scale . ')';
-        }
-
         $code = sprintf(
             '    ->addColumn(%s, %s',
             StringUtils::toCode($column->name),
-            StringUtils::toCode($type),
+            'Type::' . $column->type->name,
         );
 
         if ($column->nullable) {
@@ -143,6 +137,18 @@ readonly class MigrationGenerator
 
         if ($column->primary) {
             $code .= ', primary: ' . StringUtils::toCode($column->primary);
+        }
+
+        if ($column->size !== null) {
+            $code .= ', size: ' . StringUtils::toCode($column->size);
+        }
+
+        if ($column->precision !== null) {
+            $code .= ', size: ' . StringUtils::toCode($column->precision);
+        }
+
+        if ($column->scale !== null) {
+            $code .= ', scale: ' . StringUtils::toCode($column->scale);
         }
 
         if ($column->default !== null) {
