@@ -126,8 +126,17 @@ class TableBuilder
         $this->executeQuery($query);
     }
 
-    private function executeQuery(QueryInterface $query): void
+    private function executeQuery(QueryInterface $query): int
     {
-        $this->databaseProvider->getDatabase()->getPdo()->exec($query->getQuery());
+        $pdo = $this->databaseProvider->getDatabase()->getPdo();
+
+        $affectedRows = $pdo->exec($query->getQuery());
+        if ($affectedRows === false) {
+            $error = $pdo->errorInfo();
+
+            throw new \RuntimeException('Query failed: [' . $error[0] . ']: ' . $error[1] . ' - ' . $error[2]);
+        }
+
+        return $affectedRows;
     }
 }
