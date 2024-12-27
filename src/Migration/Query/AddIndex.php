@@ -16,7 +16,7 @@ readonly class AddIndex implements QueryInterface
     public function getQuery(): string
     {
         $query = sprintf(
-            'CONSTRAINT %sINDEX %s (%s)',
+            '%sINDEX %s (%s)',
             $this->unique ? 'UNIQUE ' : '',
             NameUtils::escape($this->name),
             implode(', ', array_map(fn($column) => NameUtils::escape($column), $this->columns)),

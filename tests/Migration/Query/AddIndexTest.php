@@ -14,13 +14,13 @@ final class AddIndexTest extends TestCase
 {
     /** @param list<string> $columns */
     #[TestWith(
-        [['address_id'], 'index_users_address_id', false, 'CONSTRAINT INDEX `index_users_address_id` (`address_id`)'],
+        [['address_id'], 'index_users_address_id', false, 'INDEX `index_users_address_id` (`address_id`)'],
     )]
     #[TestWith(
-        [['address_id', 'name'], 'index_users_address_id_name', false, 'CONSTRAINT INDEX `index_users_address_id_name` (`address_id`, `name`)'],
+        [['address_id', 'name'], 'index_users_address_id_name', false, 'INDEX `index_users_address_id_name` (`address_id`, `name`)'],
     )]
     #[TestWith(
-        [['address_id'], 'index_users_address_id', true, 'CONSTRAINT UNIQUE INDEX `index_users_address_id` (`address_id`)'],
+        [['address_id'], 'index_users_address_id', true, 'UNIQUE INDEX `index_users_address_id` (`address_id`)'],
     )]
     public function testGetQuery(array $columns, string $name, bool $unique, string $expected): void
     {

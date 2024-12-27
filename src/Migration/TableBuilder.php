@@ -114,15 +114,10 @@ class TableBuilder
         $createTableQuery = new CreateTable(
             $this->name,
             array_values(array_filter($this->queries, fn ($query) => $query instanceof AddColumn)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof AddIndex)),
             array_values(array_filter($this->queries, fn ($query) => $query instanceof AddForeignKey)),
         );
         $this->executeQuery($createTableQuery);
-
-        foreach ($this->queries as $query) {
-            if ($query instanceof AddIndex) {
-                $this->executeQuery($query);
-            }
-        }
     }
 
     public function drop(): void
