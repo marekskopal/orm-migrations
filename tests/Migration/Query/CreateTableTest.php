@@ -40,6 +40,115 @@ final class CreateTableTest extends TestCase
                     11,
                 ),
             ],
+            [],
+            [],
+        );
+
+        self::assertSame(
+            'CREATE TABLE `table` (`name` VARCHAR(255) NOT NULL, `table_a` INT(11) NOT NULL);',
+            $query->getQuery(),
+        );
+    }
+
+    public function testGetQueryWithIndex(): void
+    {
+        $query = new CreateTable(
+            'table',
+            [
+                new AddColumn(
+                    'name',
+                    'varchar',
+                    false,
+                    false,
+                    false,
+                    255,
+                ),
+                new AddColumn(
+                    'table_a',
+                    'int',
+                    false,
+                    false,
+                    false,
+                    11,
+                ),
+            ],
+            [
+                new AddIndex(
+                    ['name'],
+                    'name_index',
+                    false,
+                ),
+            ],
+            [],
+        );
+
+        self::assertSame(
+            'CREATE TABLE `table` (`name` VARCHAR(255) NOT NULL, `table_a` INT(11) NOT NULL, INDEX `name_index` (`name`));',
+            $query->getQuery(),
+        );
+    }
+
+    public function testGetQueryWithForeignKey(): void
+    {
+        $query = new CreateTable(
+            'table',
+            [
+                new AddColumn(
+                    'name',
+                    'varchar',
+                    false,
+                    false,
+                    false,
+                    255,
+                ),
+                new AddColumn(
+                    'table_a',
+                    'int',
+                    false,
+                    false,
+                    false,
+                    11,
+                ),
+            ],
+            [],
+            [
+                new AddForeignKey(
+                    'table_a',
+                    'table_a',
+                    'id',
+                    'table_a_id_fk',
+                ),
+            ],
+        );
+
+        self::assertSame(
+            'CREATE TABLE `table` (`name` VARCHAR(255) NOT NULL, `table_a` INT(11) NOT NULL, CONSTRAINT `table_a_id_fk` FOREIGN KEY (`table_a`) REFERENCES `table_a`(`id`) ON DELETE CASCADE ON UPDATE CASCADE);',
+            $query->getQuery(),
+        );
+    }
+
+    public function testGetQueryWithIndexAnForeignKey(): void
+    {
+        $query = new CreateTable(
+            'table',
+            [
+                new AddColumn(
+                    'name',
+                    'varchar',
+                    false,
+                    false,
+                    false,
+                    255,
+                ),
+                new AddColumn(
+                    'table_a',
+                    'int',
+                    false,
+                    false,
+                    false,
+                    11,
+                ),
+            ],
             [
                 new AddIndex(
                     ['name'],
