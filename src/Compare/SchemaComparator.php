@@ -128,7 +128,7 @@ class SchemaComparator
             }
         }
 
-        return array_values($sortedTablesToCreate);
+        return array_values(array_merge($sortedTablesToCreate, $tablesToCreate));
     }
 
     private function compareTable(TableSchema $tableDatabase, TableSchema $tableOrm): CompareResultTable
