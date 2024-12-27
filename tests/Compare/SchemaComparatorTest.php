@@ -114,6 +114,26 @@ final class SchemaComparatorTest extends TestCase
         self::assertSame('table_c', $result->tablesToCreate[2]->name);
     }
 
+    public function testCompareCreateTableColumnOrder(): void
+    {
+        $comparator = new SchemaComparator();
+
+        $schemaDatabase = new DatabaseSchema([]);
+
+        $schemaOrm = new DatabaseSchema([
+            'table_a' => new TableSchema('table_a', [
+                'column_b' => ColumnSchemaFixture::create(name: 'column_b', type: Type::Int),
+                'column_a' => ColumnSchemaFixture::create(name: 'column_a', type: Type::Int, primary: true),
+            ], [], []),
+        ]);
+
+        $result = $comparator->compare($schemaDatabase, $schemaOrm);
+
+        self::assertCount(1, $result->tablesToCreate);
+        self::assertCount(2, $result->tablesToCreate[0]->columnsToCreate);
+        self::assertSame('column_a', $result->tablesToCreate[0]->columnsToCreate[0]->name);
+    }
+
     public function testCompareDropTable(): void
     {
         $comparator = new SchemaComparator();

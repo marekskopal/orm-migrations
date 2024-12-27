@@ -37,12 +37,15 @@ class SchemaComparator
             $tableDatabase = $schemaDatabase->tables[$tableOrm->name] ?? null;
 
             if ($tableDatabase === null) {
+                $columnsToCreate = array_values(array_map(
+                    fn (ColumnSchema $column) => CompareResultColumn::fromColumnSchema($column),
+                    $tableOrm->columns,
+                ));
+                usort($columnsToCreate, fn (CompareResultColumn $a, CompareResultColumn $b) => !$a->primary <=> !$b->primary);
+
                 $tablesToCreate[] = new CompareResultTable(
                     name: $tableOrm->name,
-                    columnsToCreate: array_values(array_map(
-                        fn (ColumnSchema $column) => CompareResultColumn::fromColumnSchema($column),
-                        $tableOrm->columns,
-                    )),
+                    columnsToCreate: $columnsToCreate,
                     columnsToDrop: [],
                     columnsToAlter: [],
                     indexesToCreate: array_values(array_map(
