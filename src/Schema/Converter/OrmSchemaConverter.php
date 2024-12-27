@@ -10,6 +10,7 @@ use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
 use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
 use MarekSkopal\ORM\Migrations\Schema\TableSchema;
 use MarekSkopal\ORM\Migrations\Utils\EnumUtils;
+use MarekSkopal\ORM\Schema\Enum\RelationEnum;
 use MarekSkopal\ORM\Schema\Schema;
 
 class OrmSchemaConverter
@@ -22,6 +23,10 @@ class OrmSchemaConverter
             $columns = [];
 
             foreach ($entity->columns as $column) {
+                if ($column->relationType === RelationEnum::OneToMany) {
+                    continue;
+                }
+
                 $columns[$column->columnName] = new ColumnSchema(
                     name: $column->columnName,
                     type: $column->columnType,
@@ -41,7 +46,7 @@ class OrmSchemaConverter
             $foreignKeys = [];
 
             foreach ($entity->columns as $column) {
-                if ($column->relationType === null) {
+                if ($column->relationType === null || $column->relationType === RelationEnum::OneToMany) {
                     continue;
                 }
 
