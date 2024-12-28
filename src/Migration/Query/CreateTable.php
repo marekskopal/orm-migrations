@@ -20,26 +20,23 @@ readonly class CreateTable implements QueryInterface
 
     public function getQuery(): string
     {
-        $queries = [];
-
-        $columnsQuery = $this->getColumnsQuery();
-        if ($columnsQuery !== '') {
-            $queries[] = $columnsQuery;
-        }
-        $indexesQuery = $this->getIndexesQuery();
-        if ($indexesQuery !== '') {
-            $queries[] = $indexesQuery;
-        }
-        $foreignKeysQuery = $this->getForeignKeysQuery();
-        if ($foreignKeysQuery !== '') {
-            $queries[] = $foreignKeysQuery;
-        }
-
         return sprintf(
             'CREATE TABLE %s (%s);',
             NameUtils::escape($this->name),
-            implode(', ', $queries),
+            implode(', ', $this->getQueries()),
         );
+    }
+
+    /** @return list<string> */
+    private function getQueries(): array
+    {
+        $queries = array_values(array_filter([
+            $this->getColumnsQuery(),
+            $this->getIndexesQuery(),
+            $this->getForeignKeysQuery(),
+        ], fn (string $query): bool => $query !== ''));
+
+        return $queries;
     }
 
     private function getColumnsQuery(): string

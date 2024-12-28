@@ -14,6 +14,6 @@ readonly class DropColumn implements QueryInterface
 
     public function getQuery(): string
     {
-        return sprintf('DROP COLUMN %s;', NameUtils::escape($this->name));
+        return sprintf('DROP COLUMN %s', NameUtils::escape($this->name));
     }
 }

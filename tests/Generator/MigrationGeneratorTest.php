@@ -260,6 +260,73 @@ final class MigrationGeneratorTest extends TestCase
         self::assertSame($migrationContent, $expectedContent);
     }
 
+    public function testGenerateAlterTable(): void
+    {
+        $migrationGenerator = new MigrationGenerator(self::MigrationsGeneratedPath);
+
+        $compareResult = new CompareResult([], [], [
+            new CompareResultTable(
+                name: 'table_a',
+                columnsToCreate: [
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'first_name',
+                            type: Type::String,
+                            nullable: true,
+                            size: 255,
+                        ),
+                    ),
+                ],
+                columnsToDrop: [
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'address',
+                            type: Type::String,
+                            size: 50,
+                            default: 'New York',
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'address',
+                            type: Type::String,
+                            size: 50,
+                            default: 'New York',
+                        ),
+                    ),
+                ],
+                columnsToAlter: [
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'score',
+                            type: Type::Int,
+                            size: 20,
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'score',
+                            type: Type::Int,
+                            size: 10,
+                        ),
+                    ),
+                ],
+                indexesToCreate: [],
+                indexesToDrop: [],
+                foreignKeysToCreate: [],
+                foreignKeysToDrop: [],
+            ),
+        ]);
+
+        $fileName = $migrationGenerator->generate(
+            $compareResult,
+            'AlterTableMigration',
+            'MarekSkopal\ORM\Migrations\Tests\Generator\Migrations',
+        );
+
+        self::assertFileExists(self::MigrationsGeneratedPath . '/' . $fileName);
+
+        $migrationContent = file_get_contents(self::MigrationsGeneratedPath . '/' . $fileName);
+        $expectedContent = file_get_contents(self::MigrationsPath . '/AlterTableMigration.php');
+        self::assertSame($migrationContent, $expectedContent);
+    }
+
     protected function tearDown(): void
     {
         $files = scandir(self::MigrationsGeneratedPath);

@@ -9,6 +9,8 @@ use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddColumn;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddForeignKey;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddIndex;
+use MarekSkopal\ORM\Migrations\Migration\Query\AlterColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\AlterTable;
 use MarekSkopal\ORM\Migrations\Migration\Query\CreateTable;
 use MarekSkopal\ORM\Migrations\Migration\Query\DropColumn;
 use MarekSkopal\ORM\Migrations\Migration\Query\DropForeignKey;
@@ -63,6 +65,39 @@ class TableBuilder
     public function dropColumn(string $name): self
     {
         $this->queries[] = new DropColumn($name);
+
+        return $this;
+    }
+
+    /** @param list<string>|null $enum */
+    public function alterColumn(
+        string $name,
+        Type|string $type,
+        bool $nullable = false,
+        bool $autoincrement = false,
+        bool $primary = false,
+        ?int $size = null,
+        ?int $precision = null,
+        ?int $scale = null,
+        ?array $enum = null,
+        string|int|float|null $default = null,
+    ): self {
+        if (is_string($type)) {
+            $type = Type::from($type);
+        }
+
+        $this->queries[] = new AlterColumn(
+            name: $name,
+            type: $this->databaseProvider->getTypeConverter()->convertToDatabase($type),
+            nullable: $nullable,
+            autoincrement: $autoincrement,
+            primary: $primary,
+            size: $this->databaseProvider->getTypeConverter()->sanitizeSize($type, $size),
+            precision: $precision,
+            scale: $scale,
+            enum: $enum,
+            default: $default,
+        );
 
         return $this;
     }
@@ -124,6 +159,21 @@ class TableBuilder
     {
         $query = new DropTable($this->name);
         $this->executeQuery($query);
+    }
+
+    public function alter(): void
+    {
+        $alterTableQuery = new AlterTable(
+            $this->name,
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof AddColumn)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof DropColumn)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof AlterColumn)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof AddIndex)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof DropIndex)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof AddForeignKey)),
+            array_values(array_filter($this->queries, fn ($query) => $query instanceof DropForeignKey)),
+        );
+        $this->executeQuery($alterTableQuery);
     }
 
     private function executeQuery(QueryInterface $query): int

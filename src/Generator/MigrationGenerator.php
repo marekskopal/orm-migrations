@@ -90,7 +90,7 @@ readonly class MigrationGenerator
                 $this->alterColumnToMethodBody($column->changedColumn, $method);
             }
 
-            $method->addBody('->execute();');
+            $method->addBody('    ->alter();');
         }
     }
 
@@ -120,8 +120,12 @@ readonly class MigrationGenerator
         foreach ($compareResult->tablesToAlter as $table) {
             $this->tableToMethodBody($table, $method);
 
-            foreach (array_reverse($table->columnsToCreate) as $column) {
-                $this->dropColumnToMethodBody($column->changedColumn, $method);
+            foreach (array_reverse($table->columnsToAlter) as $column) {
+                if ($column->originalColumn === null) {
+                    throw new \RuntimeException('Original column is required for alter column');
+                }
+
+                $this->alterColumnToMethodBody($column->originalColumn, $method);
             }
 
             foreach (array_reverse($table->columnsToDrop) as $column) {
@@ -132,15 +136,11 @@ readonly class MigrationGenerator
                 $this->addColumnToMethodBody($column->originalColumn, $method);
             }
 
-            foreach (array_reverse($table->columnsToAlter) as $column) {
-                if ($column->originalColumn === null) {
-                    throw new \RuntimeException('Original column is required for alter column');
-                }
-
-                $this->alterColumnToMethodBody($column->originalColumn, $method);
+            foreach (array_reverse($table->columnsToCreate) as $column) {
+                $this->dropColumnToMethodBody($column->changedColumn, $method);
             }
 
-            $method->addBody('->execute();');
+            $method->addBody('    ->alter();');
         }
     }
 

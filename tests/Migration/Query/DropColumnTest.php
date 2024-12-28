@@ -15,6 +15,6 @@ final class DropColumnTest extends TestCase
     {
         $query = new DropColumn('column');
 
-        self::assertSame('DROP COLUMN `column`;', $query->getQuery());
+        self::assertSame('DROP COLUMN `column`', $query->getQuery());
     }
 }
