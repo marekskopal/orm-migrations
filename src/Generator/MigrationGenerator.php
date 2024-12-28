@@ -181,7 +181,7 @@ readonly class MigrationGenerator
         }
 
         if ($column->precision !== null) {
-            $code .= ', size: ' . StringUtils::toCode($column->precision);
+            $code .= ', precision: ' . StringUtils::toCode($column->precision);
         }
 
         if ($column->scale !== null) {
