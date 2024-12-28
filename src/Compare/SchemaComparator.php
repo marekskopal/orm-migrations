@@ -14,6 +14,7 @@ use MarekSkopal\ORM\Migrations\Schema\DatabaseSchema;
 use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
 use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
 use MarekSkopal\ORM\Migrations\Schema\TableSchema;
+use MarekSkopal\ORM\Migrations\Utils\ArrayUtils;
 
 class SchemaComparator
 {
@@ -300,7 +301,7 @@ class SchemaComparator
             && ($tableOrm->size === null || $tableDatabase->size === $tableOrm->size)
             && $tableDatabase->precision === $tableOrm->precision
             && $tableDatabase->scale === $tableOrm->scale
-            && $tableDatabase->enum === $tableOrm->enum
+            && ArrayUtils::equals($tableDatabase->enum ?? [], $tableOrm->enum ?? [])
             && $tableDatabase->default === $tableOrm->default
         ) {
             return null;
