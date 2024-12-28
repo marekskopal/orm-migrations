@@ -11,6 +11,10 @@ use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultForeignKey;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultIndex;
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultTable;
 use MarekSkopal\ORM\Migrations\Generator\MigrationGenerator;
+use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
+use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
+use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
+use MarekSkopal\ORM\Migrations\Tests\Fixtures\ColumnSchemaFixture;
 use MarekSkopal\ORM\Migrations\Tests\Fixtures\CompareResultColumnFixture;
 use MarekSkopal\ORM\Migrations\Tests\Fixtures\TestEnum;
 use MarekSkopal\ORM\Migrations\Utils\StringUtils;
@@ -25,6 +29,9 @@ use UnitEnum;
 #[UsesClass(CompareResultColumn::class)]
 #[UsesClass(CompareResultIndex::class)]
 #[UsesClass(CompareResultForeignKey::class)]
+#[UsesClass(ColumnSchema::class)]
+#[UsesClass(ForeignKeySchema::class)]
+#[UsesClass(IndexSchema::class)]
 #[UsesClass(StringUtils::class)]
 final class MigrationGeneratorTest extends TestCase
 {
@@ -40,39 +47,51 @@ final class MigrationGeneratorTest extends TestCase
                 name: 'table_a',
                 columnsToCreate: [
                     CompareResultColumnFixture::create(
-                        name: 'id',
-                        type: Type::Int,
-                        primary: true,
-                        autoincrement: true,
+                        ColumnSchemaFixture::create(
+                            name: 'id',
+                            type: Type::Int,
+                            primary: true,
+                            autoincrement: true,
+                        ),
                     ),
                     CompareResultColumnFixture::create(
-                        name: 'name',
-                        type: Type::String,
-                        nullable: true,
-                        size: 255,
+                        ColumnSchemaFixture::create(
+                            name: 'name',
+                            type: Type::String,
+                            nullable: true,
+                            size: 255,
+                        ),
                     ),
                     CompareResultColumnFixture::create(
-                        name: 'address',
-                        type: Type::String,
-                        size: 50,
-                        default: 'New York',
+                        ColumnSchemaFixture::create(
+                            name: 'address',
+                            type: Type::String,
+                            size: 50,
+                            default: 'New York',
+                        ),
                     ),
                     CompareResultColumnFixture::create(
-                        name: 'score',
-                        type: Type::Int,
-                        size: 10,
+                        ColumnSchemaFixture::create(
+                            name: 'score',
+                            type: Type::Int,
+                            size: 10,
+                        ),
                     ),
                     CompareResultColumnFixture::create(
-                        name: 'price',
-                        type: Type::Decimal,
-                        precision: 10,
-                        scale: 2,
+                        ColumnSchemaFixture::create(
+                            name: 'price',
+                            type: Type::Decimal,
+                            precision: 10,
+                            scale: 2,
+                        ),
                     ),
                     CompareResultColumnFixture::create(
-                        name: 'type',
-                        type: Type::Enum,
-                        enum: array_map(fn(UnitEnum $item) => $item->value, TestEnum::cases()),
-                        default: TestEnum::A,
+                        ColumnSchemaFixture::create(
+                            name: 'type',
+                            type: Type::Enum,
+                            enum: array_map(fn(UnitEnum $item) => $item->value, TestEnum::cases()),
+                            default: TestEnum::A,
+                        ),
                     ),
                 ],
                 columnsToDrop: [],
@@ -86,24 +105,30 @@ final class MigrationGeneratorTest extends TestCase
                 name: 'table_b',
                 columnsToCreate: [
                     CompareResultColumnFixture::create(
-                        name: 'id',
-                        type: Type::Int,
-                        primary: true,
-                        autoincrement: true,
+                        ColumnSchemaFixture::create(
+                            name: 'id',
+                            type: Type::Int,
+                            primary: true,
+                            autoincrement: true,
+                        ),
                     ),
                     CompareResultColumnFixture::create(
-                        name: 'table_a_id',
-                        type: Type::Int,
+                        ColumnSchemaFixture::create(
+                            name: 'table_a_id',
+                            type: Type::Int,
+                        ),
                     ),
                 ],
                 columnsToDrop: [],
                 columnsToAlter: [],
                 indexesToCreate: [
-                    new CompareResultIndex(['table_a_id'], 'table_b_table_a_id_index', false),
+                    CompareResultIndex::fromIndexSchema(new IndexSchema(['table_a_id'], 'table_b_table_a_id_index', false)),
                 ],
                 indexesToDrop: [],
                 foreignKeysToCreate: [
-                    new CompareResultForeignKey('table_a_id', 'table_a', 'id', 'table_b_table_a_id_fk'),
+                    CompareResultForeignKey::fromForeignKeySchema(
+                        new ForeignKeySchema('table_a_id', 'table_a', 'id', 'table_b_table_a_id_fk'),
+                    ),
                 ],
                 foreignKeysToDrop: [],
             ),
@@ -119,6 +144,119 @@ final class MigrationGeneratorTest extends TestCase
 
         $migrationContent = file_get_contents(self::MigrationsGeneratedPath . '/' . $fileName);
         $expectedContent = file_get_contents(self::MigrationsPath . '/CreateTableMigration.php');
+        self::assertSame($migrationContent, $expectedContent);
+    }
+
+    public function testGenerateDropTable(): void
+    {
+        $migrationGenerator = new MigrationGenerator(self::MigrationsGeneratedPath);
+
+        $compareResult = new CompareResult([], [
+            new CompareResultTable(
+                name: 'table_a',
+                columnsToCreate: [],
+                columnsToDrop: [
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'id',
+                            type: Type::Int,
+                            primary: true,
+                            autoincrement: true,
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'id',
+                            type: Type::Int,
+                            primary: true,
+                            autoincrement: true,
+                        ),
+                    ),
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'name',
+                            type: Type::String,
+                            nullable: true,
+                            size: 255,
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'name',
+                            type: Type::String,
+                            nullable: true,
+                            size: 255,
+                        ),
+                    ),
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'address',
+                            type: Type::String,
+                            size: 50,
+                            default: 'New York',
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'address',
+                            type: Type::String,
+                            size: 50,
+                            default: 'New York',
+                        ),
+                    ),
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'score',
+                            type: Type::Int,
+                            size: 10,
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'score',
+                            type: Type::Int,
+                            size: 10,
+                        ),
+                    ),
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'price',
+                            type: Type::Decimal,
+                            precision: 10,
+                            scale: 2,
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'price',
+                            type: Type::Decimal,
+                            precision: 10,
+                            scale: 2,
+                        ),
+                    ),
+                    CompareResultColumnFixture::create(
+                        ColumnSchemaFixture::create(
+                            name: 'type',
+                            type: Type::Enum,
+                            enum: array_map(fn(UnitEnum $item) => $item->value, TestEnum::cases()),
+                            default: TestEnum::A,
+                        ),
+                        ColumnSchemaFixture::create(
+                            name: 'type',
+                            type: Type::Enum,
+                            enum: array_map(fn(UnitEnum $item) => $item->value, TestEnum::cases()),
+                            default: TestEnum::A,
+                        ),
+                    ),
+                ],
+                columnsToAlter: [],
+                indexesToCreate: [],
+                indexesToDrop: [],
+                foreignKeysToCreate: [],
+                foreignKeysToDrop: [],
+            ),
+        ], []);
+
+        $fileName = $migrationGenerator->generate(
+            $compareResult,
+            'DropTableMigration',
+            'MarekSkopal\ORM\Migrations\Tests\Generator\Migrations',
+        );
+
+        self::assertFileExists(self::MigrationsGeneratedPath . '/' . $fileName);
+
+        $migrationContent = file_get_contents(self::MigrationsGeneratedPath . '/' . $fileName);
+        $expectedContent = file_get_contents(self::MigrationsPath . '/DropTableMigration.php');
         self::assertSame($migrationContent, $expectedContent);
     }
 

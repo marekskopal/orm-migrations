@@ -131,7 +131,7 @@ final class SchemaComparatorTest extends TestCase
 
         self::assertCount(1, $result->tablesToCreate);
         self::assertCount(2, $result->tablesToCreate[0]->columnsToCreate);
-        self::assertSame('column_a', $result->tablesToCreate[0]->columnsToCreate[0]->name);
+        self::assertSame('column_a', $result->tablesToCreate[0]->columnsToCreate[0]->changedColumn->name);
     }
 
     public function testCompareDropTable(): void

@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Generator;
 
 use MarekSkopal\ORM\Migrations\Compare\Result\CompareResult;
-use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultColumn;
-use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultForeignKey;
-use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultIndex;
+use MarekSkopal\ORM\Migrations\Compare\Result\CompareResultTable;
 use MarekSkopal\ORM\Migrations\Migration\Migration;
+use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
+use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
+use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
 use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
@@ -53,36 +54,40 @@ readonly class MigrationGenerator
         $method->setReturnType('void');
 
         foreach ($compareResult->tablesToCreate as $table) {
-            $method->addBody(sprintf('$this->table(\'%s\')', $table->name));
+            $this->tableToMethodBody($table, $method);
 
             foreach ($table->columnsToCreate as $column) {
-                $this->addColumnToMethodBody($column, $method);
+                $this->addColumnToMethodBody($column->changedColumn, $method);
             }
 
             foreach ($table->indexesToCreate as $index) {
-                $this->addIndexToMethodBody($index, $method);
+                $this->addIndexToMethodBody($index->changedIndex, $method);
             }
 
             foreach ($table->foreignKeysToCreate as $foreignKey) {
-                $this->addForeignKeyToMethodBody($foreignKey, $method);
+                $this->addForeignKeyToMethodBody($foreignKey->changedForeignKey, $method);
             }
 
             $method->addBody("    ->create();\n");
         }
 
         foreach ($compareResult->tablesToDrop as $table) {
-            $method->addBody(sprintf('$this->table(%s)->drop();', StringUtils::toCode($table->name)));
+            $this->dropTableToMethodBody($table, $method);
         }
 
         foreach ($compareResult->tablesToAlter as $table) {
-            $method->addBody(sprintf('$this->table(%s', StringUtils::toCode($table->name)));
+            $this->tableToMethodBody($table, $method);
 
             foreach ($table->columnsToCreate as $column) {
-                $this->addColumnToMethodBody($column, $method);
+                $this->addColumnToMethodBody($column->changedColumn, $method);
             }
 
             foreach ($table->columnsToDrop as $column) {
-                $method->addBody(sprintf('    ->dropColumn(%s);', StringUtils::toCode($column->name)));
+                $this->dropColumnToMethodBody($column->changedColumn, $method);
+            }
+
+            foreach ($table->columnsToAlter as $column) {
+                $this->alterColumnToMethodBody($column->changedColumn, $method);
             }
 
             $method->addBody('->execute();');
@@ -95,38 +100,66 @@ readonly class MigrationGenerator
         $method->setReturnType('void');
 
         foreach (array_reverse($compareResult->tablesToCreate) as $table) {
-            $method->addBody(sprintf('$this->table(\'%s\')->drop();', $table->name));
+            $this->dropTableToMethodBody($table, $method);
         }
 
-        foreach ($compareResult->tablesToDrop as $table) {
-            $method->addBody(sprintf('$this->table(\'%s\')', $table->name));
+        foreach (array_reverse($compareResult->tablesToDrop) as $table) {
+            $this->tableToMethodBody($table, $method);
 
-            foreach ($table->columnsToCreate as $column) {
-                $this->addColumnToMethodBody($column, $method);
+            foreach ($table->columnsToDrop as $column) {
+                if ($column->originalColumn === null) {
+                    throw new \RuntimeException('Original column is required for drop column');
+                }
+
+                $this->addColumnToMethodBody($column->originalColumn, $method);
             }
 
             $method->addBody('    ->create();');
         }
 
         foreach ($compareResult->tablesToAlter as $table) {
-            $method->addBody(sprintf('$this->table(\'%s\'', $table->name));
+            $this->tableToMethodBody($table, $method);
 
-            foreach ($table->columnsToCreate as $column) {
-                $method->addBody(sprintf('    ->dropColumn(\'%s\');', $column->name));
+            foreach (array_reverse($table->columnsToCreate) as $column) {
+                $this->dropColumnToMethodBody($column->changedColumn, $method);
             }
 
-            foreach ($table->columnsToDrop as $column) {
-                $this->addColumnToMethodBody($column, $method);
+            foreach (array_reverse($table->columnsToDrop) as $column) {
+                if ($column->originalColumn === null) {
+                    throw new \RuntimeException('Original column is required for drop column');
+                }
+
+                $this->addColumnToMethodBody($column->originalColumn, $method);
+            }
+
+            foreach (array_reverse($table->columnsToAlter) as $column) {
+                if ($column->originalColumn === null) {
+                    throw new \RuntimeException('Original column is required for alter column');
+                }
+
+                $this->alterColumnToMethodBody($column->originalColumn, $method);
             }
 
             $method->addBody('->execute();');
         }
     }
 
-    private function addColumnToMethodBody(CompareResultColumn $column, Method $method): void
+    private function tableToMethodBody(CompareResultTable $table, Method $method): void
+    {
+        $method->addBody(sprintf('$this->table(%s)', StringUtils::toCode($table->name)));
+    }
+
+    private function dropTableToMethodBody(CompareResultTable $table, Method $method): void
+    {
+        $this->tableToMethodBody($table, $method);
+        $method->addBody('    ->drop();');
+    }
+
+    private function changeColumnToMethodBody(string $change, ColumnSchema $column, Method $method): void
     {
         $code = sprintf(
-            '    ->addColumn(%s, %s',
+            '    ->%sColumn(%s, %s',
+            $change,
             StringUtils::toCode($column->name),
             'Type::' . $column->type->name,
         );
@@ -168,7 +201,27 @@ readonly class MigrationGenerator
         $method->addBody($code);
     }
 
-    private function addIndexToMethodBody(CompareResultIndex $index, Method $method): void
+    private function addColumnToMethodBody(ColumnSchema $column, Method $method): void
+    {
+        $this->changeColumnToMethodBody('add', $column, $method);
+    }
+
+    private function dropColumnToMethodBody(ColumnSchema $column, Method $method): void
+    {
+        $code = sprintf(
+            '    ->dropColumn(%s)',
+            StringUtils::toCode($column->name),
+        );
+
+        $method->addBody($code);
+    }
+
+    private function alterColumnToMethodBody(ColumnSchema $column, Method $method): void
+    {
+        $this->changeColumnToMethodBody('alter', $column, $method);
+    }
+
+    private function addIndexToMethodBody(IndexSchema $index, Method $method): void
     {
         $code = sprintf(
             '    ->addIndex(%s, %s, %s',
@@ -182,7 +235,7 @@ readonly class MigrationGenerator
         $method->addBody($code);
     }
 
-    private function addForeignKeyToMethodBody(CompareResultForeignKey $foreignKey, Method $method): void
+    private function addForeignKeyToMethodBody(ForeignKeySchema $foreignKey, Method $method): void
     {
         $code = sprintf(
             '    ->addForeignKey(%s, %s, %s, %s',

@@ -30,7 +30,19 @@ class SchemaComparator
                 continue;
             }
 
-            $tablesToDrop[] = new CompareResultTable($tableDatabase->name, [], [], [], [], [], [], []);
+            $tablesToDrop[] = new CompareResultTable(
+                name: $tableDatabase->name,
+                columnsToCreate: [],
+                columnsToDrop: array_values(array_map(
+                    fn (ColumnSchema $column) => CompareResultColumn::fromColumnSchema($column, $column),
+                    $tableDatabase->columns,
+                )),
+                columnsToAlter: [],
+                indexesToCreate: [],
+                indexesToDrop: [],
+                foreignKeysToCreate: [],
+                foreignKeysToDrop: [],
+            );
         }
 
         foreach ($schemaOrm->tables as $tableOrm) {
@@ -41,7 +53,10 @@ class SchemaComparator
                     fn (ColumnSchema $column) => CompareResultColumn::fromColumnSchema($column),
                     $tableOrm->columns,
                 ));
-                usort($columnsToCreate, fn (CompareResultColumn $a, CompareResultColumn $b) => !$a->primary <=> !$b->primary);
+                usort(
+                    $columnsToCreate,
+                    fn (CompareResultColumn $a, CompareResultColumn $b) => !$a->changedColumn->primary <=> !$b->changedColumn->primary,
+                );
 
                 $tablesToCreate[] = new CompareResultTable(
                     name: $tableOrm->name,
@@ -98,7 +113,7 @@ class SchemaComparator
             $hasOnlyForeignKeysToSelf = true;
             $foreignKeysToCreate = $tableToCreate->foreignKeysToCreate;
             foreach ($foreignKeysToCreate as $foreignKeyToCreate) {
-                if ($foreignKeyToCreate->referenceTable !== $tableToCreate->name) {
+                if ($foreignKeyToCreate->changedForeignKey->referenceTable !== $tableToCreate->name) {
                     $hasOnlyForeignKeysToSelf = false;
                     break;
                 }
@@ -117,7 +132,7 @@ class SchemaComparator
                 $hasAllForeignKeysTablesCreated = true;
                 $foreignKeysToCreate = $tableToCreate->foreignKeysToCreate;
                 foreach ($foreignKeysToCreate as $foreignKeyToCreate) {
-                    if (!array_key_exists($foreignKeyToCreate->referenceTable, $sortedTablesToCreate)) {
+                    if (!array_key_exists($foreignKeyToCreate->changedForeignKey->referenceTable, $sortedTablesToCreate)) {
                         $hasAllForeignKeysTablesCreated = false;
                         break;
                     }
@@ -160,7 +175,7 @@ class SchemaComparator
                 continue;
             }
 
-            $columnsToDrop[] = CompareResultColumn::fromColumnSchema($columnDatabase);
+            $columnsToDrop[] = CompareResultColumn::fromColumnSchema($columnDatabase, $columnDatabase);
         }
 
         return $columnsToDrop;
@@ -281,11 +296,15 @@ class SchemaComparator
             && $tableDatabase->nullable === $tableOrm->nullable
             && $tableDatabase->autoincrement === $tableOrm->autoincrement
             && $tableDatabase->primary === $tableOrm->primary
+            && $tableDatabase->size === $tableOrm->size
+            && $tableDatabase->precision === $tableOrm->precision
+            && $tableDatabase->scale === $tableOrm->scale
+            && $tableDatabase->enum === $tableOrm->enum
             && $tableDatabase->default === $tableOrm->default
         ) {
             return null;
         }
 
-        return CompareResultColumn::fromColumnSchema($tableOrm);
+        return CompareResultColumn::fromColumnSchema($tableOrm, $tableDatabase);
     }
 }

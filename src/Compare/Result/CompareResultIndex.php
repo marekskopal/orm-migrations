@@ -8,13 +8,12 @@ use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
 
 readonly class CompareResultIndex
 {
-    /** @param list<string> $columns */
-    public function __construct(public array $columns, public string $name, public bool $unique,)
+    public function __construct(public IndexSchema $changedIndex, public ?IndexSchema $originalIndex)
     {
     }
 
-    public static function fromIndexSchema(IndexSchema $index): self
+    public static function fromIndexSchema(IndexSchema $changedIndex, ?IndexSchema $originalIndex = null): self
     {
-        return new self(columns: $index->columns, name: $index->name, unique: $index->unique);
+        return new self(changedIndex: $changedIndex, originalIndex: $originalIndex);
     }
 }
