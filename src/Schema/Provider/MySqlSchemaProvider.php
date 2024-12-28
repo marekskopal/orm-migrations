@@ -150,8 +150,8 @@ class MySqlSchemaProvider implements SchemaProviderInterface
          * @var array<int, array{
          *     COLUMN_NAME: string,
          *     CONSTRAINT_NAME: string,
-         *     REFERENCED_TABLE_NAME: string,
-         *     REFERENCED_COLUMN_NAME: string,
+         *     REFERENCED_TABLE_NAME: string|null,
+         *     REFERENCED_COLUMN_NAME: string|null,
          * }> $foreignKeys
          */
         $foreignKeys = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -159,7 +159,11 @@ class MySqlSchemaProvider implements SchemaProviderInterface
         $foreignKeysSchema = [];
 
         foreach ($foreignKeys as $foreignKey) {
-            if ($foreignKey['CONSTRAINT_NAME'] === 'PRIMARY' || $foreignKey['REFERENCED_TABLE_NAME'] === null) {
+            if (
+                $foreignKey['CONSTRAINT_NAME'] === 'PRIMARY'
+                || $foreignKey['REFERENCED_TABLE_NAME'] === null
+                || $foreignKey['REFERENCED_COLUMN_NAME'] === null
+            ) {
                 continue;
             }
 
