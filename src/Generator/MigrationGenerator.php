@@ -99,24 +99,6 @@ readonly class MigrationGenerator
         $method = $class->addMethod('down');
         $method->setReturnType('void');
 
-        foreach (array_reverse($compareResult->tablesToCreate) as $table) {
-            $this->dropTableToMethodBody($table, $method);
-        }
-
-        foreach (array_reverse($compareResult->tablesToDrop) as $table) {
-            $this->tableToMethodBody($table, $method);
-
-            foreach ($table->columnsToDrop as $column) {
-                if ($column->originalColumn === null) {
-                    throw new \RuntimeException('Original column is required for drop column');
-                }
-
-                $this->addColumnToMethodBody($column->originalColumn, $method);
-            }
-
-            $method->addBody('    ->create();');
-        }
-
         foreach ($compareResult->tablesToAlter as $table) {
             $this->tableToMethodBody($table, $method);
 
@@ -141,6 +123,24 @@ readonly class MigrationGenerator
             }
 
             $method->addBody('    ->alter();');
+        }
+
+        foreach (array_reverse($compareResult->tablesToDrop) as $table) {
+            $this->tableToMethodBody($table, $method);
+
+            foreach ($table->columnsToDrop as $column) {
+                if ($column->originalColumn === null) {
+                    throw new \RuntimeException('Original column is required for drop column');
+                }
+
+                $this->addColumnToMethodBody($column->originalColumn, $method);
+            }
+
+            $method->addBody('    ->create();');
+        }
+
+        foreach (array_reverse($compareResult->tablesToCreate) as $table) {
+            $this->dropTableToMethodBody($table, $method);
         }
     }
 
