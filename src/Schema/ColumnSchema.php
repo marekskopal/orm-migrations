@@ -6,6 +6,7 @@ namespace MarekSkopal\ORM\Migrations\Schema;
 
 use BackedEnum;
 use MarekSkopal\ORM\Enum\Type;
+use MarekSkopal\ORM\Migrations\Utils\ArrayUtils;
 
 readonly class ColumnSchema
 {
@@ -22,5 +23,20 @@ readonly class ColumnSchema
         public ?array $enum,
         public string|int|float|bool|BackedEnum|null $default,
     ) {
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->name === $other->name
+        && $this->type === $other->type
+        && $this->nullable === $other->nullable
+        && $this->autoincrement === $other->autoincrement
+        && $this->primary === $other->primary
+        // If size is null in ORM schema, it does not matter if has size in database schema
+        && ($other->size === null || $this->size === $other->size)
+        && $this->precision === $other->precision
+        && $this->scale === $other->scale
+        && ArrayUtils::equals($this->enum ?? [], $other->enum ?? [])
+        && $this->default === $other->default;
     }
 }
