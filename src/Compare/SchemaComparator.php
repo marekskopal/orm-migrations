@@ -296,7 +296,8 @@ class SchemaComparator
             && $tableDatabase->nullable === $tableOrm->nullable
             && $tableDatabase->autoincrement === $tableOrm->autoincrement
             && $tableDatabase->primary === $tableOrm->primary
-            && $tableDatabase->size === $tableOrm->size
+            // If size is null in ORM schema, it does not matter if has size in database schema
+            && ($tableOrm->size === null || $tableDatabase->size === $tableOrm->size)
             && $tableDatabase->precision === $tableOrm->precision
             && $tableDatabase->scale === $tableOrm->scale
             && $tableDatabase->enum === $tableOrm->enum
