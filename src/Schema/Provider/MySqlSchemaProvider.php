@@ -159,7 +159,7 @@ class MySqlSchemaProvider implements SchemaProviderInterface
         $foreignKeysSchema = [];
 
         foreach ($foreignKeys as $foreignKey) {
-            if ($foreignKey['CONSTRAINT_NAME'] === 'PRIMARY') {
+            if ($foreignKey['CONSTRAINT_NAME'] === 'PRIMARY' || $foreignKey['REFERENCED_TABLE_NAME'] === null) {
                 continue;
             }
 
