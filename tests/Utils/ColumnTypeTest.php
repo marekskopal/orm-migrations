@@ -20,7 +20,7 @@ class ColumnTypeTest extends TestCase
             ['varchar(255)', new ColumnType('varchar', size: 255)],
             ['decimal(10,2)', new ColumnType('decimal', precision: 10, scale: 2)],
             ['enum(\'a\',\'b\',\'c\')', new ColumnType('enum', enum: ['a', 'b', 'c'])],
-            ['enum("a","b","c")', new ColumnType('enum', enum: ['a', 'b', 'c'])],
+            ['ENUM("A","B","C")', new ColumnType('enum', enum: ['A', 'B', 'C'])],
         ];
     }
 

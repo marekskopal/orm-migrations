@@ -18,10 +18,10 @@ readonly class ColumnType
 
     public static function parseColumnType(string $typeString): self
     {
-        $typeString = strtolower($typeString);
+        $lowerTypeString = strtolower($typeString);
 
-        if (str_starts_with($typeString, 'enum')) {
-            $pattern = '/^enum\((?<enum>.+)\)$/';
+        if (str_starts_with($lowerTypeString, 'enum')) {
+            $pattern = '/^enum\((?<enum>.+)\)$/i';
             if (preg_match($pattern, $typeString, $matches) !== 1) {
                 throw new \InvalidArgumentException('Invalid type string format');
             }
@@ -33,7 +33,7 @@ readonly class ColumnType
         }
 
         $pattern = '/^(?<type>\w+)(?:(?:(\((?<size>\d+)\))?$)|(?:\((?<precision>\d+),(?<scale>\d+)\)$))/';
-        if (preg_match($pattern, $typeString, $matches) !== 1) {
+        if (preg_match($pattern, $lowerTypeString, $matches) !== 1) {
             throw new \InvalidArgumentException('Invalid type string format');
         }
 
