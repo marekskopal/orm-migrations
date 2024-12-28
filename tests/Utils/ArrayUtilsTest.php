@@ -12,12 +12,16 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(ArrayUtils::class)]
 final class ArrayUtilsTest extends TestCase
 {
+    /**
+     * @param array<mixed> $arrayA
+     * @param array<mixed> $arrayB
+     */
     #[TestWith([[1, 2, 3], [1, 2, 3], true])]
     #[TestWith([[1, 2, 3], [1, 2, 4], false])]
     #[TestWith([[1, 2, 3], [1, 2], false])]
     #[TestWith([[1, 2, 3], [1, 2, 3, 4], false])]
     #[TestWith([[1, 2, 3], [1, 3, 2], true])]
-    public function testEquals($arrayA, $arrayB, $expects): void
+    public function testEquals(array $arrayA, array $arrayB, bool $expects): void
     {
         self::assertSame($expects, ArrayUtils::equals($arrayA, $arrayB));
     }

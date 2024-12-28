@@ -8,7 +8,7 @@ class ArrayUtils
 {
     /**
      * @param array<mixed> $arrayA
-     * @param array<mixed> $array2
+     * @param array<mixed> $arrayB
      */
     public static function equals(array $arrayA, array $arrayB): bool
     {

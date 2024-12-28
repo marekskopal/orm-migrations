@@ -16,7 +16,7 @@ final class CreateTableMigration extends Migration
             ->addColumn('name', Type::String, nullable: true, size: 255)
             ->addColumn('address', Type::String, size: 50, default: 'New York')
             ->addColumn('score', Type::Int, size: 10)
-            ->addColumn('price', Type::Decimal, size: 10, scale: 2)
+            ->addColumn('price', Type::Decimal, precision: 10, scale: 2)
             ->addColumn('type', Type::Enum, enum: ['a', 'b', 'c'], default: 'a')
             ->create();
 
