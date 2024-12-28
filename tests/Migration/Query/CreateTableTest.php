@@ -39,13 +39,22 @@ final class CreateTableTest extends TestCase
                     false,
                     11,
                 ),
+                new AddColumn(
+                    'is_active',
+                    'tinyint',
+                    false,
+                    false,
+                    false,
+                    1,
+                    default: true,
+                ),
             ],
             [],
             [],
         );
 
         self::assertSame(
-            'CREATE TABLE `table` (`name` VARCHAR(255) NOT NULL, `table_a` INT(11) NOT NULL);',
+            'CREATE TABLE `table` (`name` VARCHAR(255) NOT NULL, `table_a` INT(11) NOT NULL, `is_active` TINYINT(1) NOT NULL DEFAULT "1");',
             $query->getQuery(),
         );
     }

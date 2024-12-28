@@ -17,6 +17,7 @@ use MarekSkopal\ORM\Migrations\Schema\TableSchema;
 use MarekSkopal\ORM\Migrations\Tests\Fixtures\ColumnSchemaFixture;
 use MarekSkopal\ORM\Migrations\Tests\Fixtures\ForeignKeySchemaFixture;
 use MarekSkopal\ORM\Migrations\Utils\ArrayUtils;
+use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
@@ -31,6 +32,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(ColumnSchema::class)]
 #[UsesClass(ForeignKeySchema::class)]
 #[UsesClass(ArrayUtils::class)]
+#[UsesClass(StringUtils::class)]
 final class SchemaComparatorTest extends TestCase
 {
     public function testCompareSame(): void

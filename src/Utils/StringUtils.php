@@ -21,4 +21,18 @@ class StringUtils
             $value instanceof BackedEnum => '\'' . $value->value . '\'',
         };
     }
+
+    /** @param string|int|float|bool|BackedEnum|array<string>|null $value */
+    public static function toCompare(string|int|float|bool|BackedEnum|array|null $value): string
+    {
+        return match (true) {
+            is_array($value) => '[' . implode(', ', array_map(fn ($v) => self::toCompare($v), $value)) . ']',
+            is_string($value) => $value,
+            is_int($value) => (string) $value,
+            is_float($value) => (string) $value,
+            is_bool($value) => $value ? '1' : '0',
+            is_null($value) => 'null',
+            $value instanceof BackedEnum => (string) $value->value,
+        };
+    }
 }

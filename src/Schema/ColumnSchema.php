@@ -7,6 +7,7 @@ namespace MarekSkopal\ORM\Migrations\Schema;
 use BackedEnum;
 use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Utils\ArrayUtils;
+use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 
 readonly class ColumnSchema
 {
@@ -37,6 +38,6 @@ readonly class ColumnSchema
         && $this->precision === $other->precision
         && $this->scale === $other->scale
         && ArrayUtils::equals($this->enum ?? [], $other->enum ?? [])
-        && $this->default === $other->default;
+        && StringUtils::toCompare($this->default) === StringUtils::toCompare($other->default);
     }
 }

@@ -19,7 +19,7 @@ abstract readonly class ChangeColumn implements QueryInterface
         public ?int $precision = null,
         public ?int $scale = null,
         public ?array $enum = null,
-        public string|int|float|null $default = null,
+        public string|int|float|bool|null $default = null,
     ) {
     }
 
