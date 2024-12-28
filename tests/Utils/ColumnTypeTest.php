@@ -17,9 +17,8 @@ class ColumnTypeTest extends TestCase
     {
         return [
             ['int', new ColumnType('int')],
-            ['varchar(255)', new ColumnType('varchar', 255)],
-            ['decimal(10,2)', new ColumnType('decimal', 10, 2)],
-            ['decimal(10,2,3)', new ColumnType('decimal', 10, 2, 3)],
+            ['varchar(255)', new ColumnType('varchar', size: 255)],
+            ['decimal(10,2)', new ColumnType('decimal', precision: 10, scale: 2)],
             ['enum(\'a\',\'b\',\'c\')', new ColumnType('enum', enum: ['a', 'b', 'c'])],
             ['enum("a","b","c")', new ColumnType('enum', enum: ['a', 'b', 'c'])],
         ];

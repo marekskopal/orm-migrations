@@ -32,7 +32,7 @@ readonly class ColumnType
             );
         }
 
-        $pattern = '/^(?<type>\w+)(?:\((?<size>\d+)(?:,(?<precision>\d+))?(?:,(?<scale>\d+))?\))?$/';
+        $pattern = '/^(?<type>\w+)(?:(?:(\((?<size>\d+)\))?$)|(?:\((?<precision>\d+),(?<scale>\d+)\)$))/';
         if (preg_match($pattern, $typeString, $matches) !== 1) {
             throw new \InvalidArgumentException('Invalid type string format');
         }
