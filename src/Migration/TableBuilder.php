@@ -41,7 +41,7 @@ class TableBuilder
         ?int $precision = null,
         ?int $scale = null,
         ?array $enum = null,
-        string|int|float|null $default = null,
+        string|int|float|bool|null $default = null,
     ): self
     {
         if (is_string($type)) {
