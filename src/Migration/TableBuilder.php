@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration;
 
+use BackedEnum;
 use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 use MarekSkopal\ORM\Migrations\Migration\Query\AddColumn;
@@ -17,6 +18,7 @@ use MarekSkopal\ORM\Migrations\Migration\Query\DropForeignKey;
 use MarekSkopal\ORM\Migrations\Migration\Query\DropIndex;
 use MarekSkopal\ORM\Migrations\Migration\Query\DropTable;
 use MarekSkopal\ORM\Migrations\Migration\Query\Enum\ReferenceOptionEnum;
+use MarekSkopal\ORM\Migrations\Migration\Query\Insert;
 use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
 
 class TableBuilder
@@ -174,6 +176,13 @@ class TableBuilder
             array_values(array_filter($this->queries, fn ($query) => $query instanceof DropForeignKey)),
         );
         $this->executeQuery($alterTableQuery);
+    }
+
+    /** @param array<array<string|int|float|bool|BackedEnum|null>> $values */
+    public function insert(array $values): void
+    {
+        $query = new Insert($this->name, $values);
+        $this->executeQuery($query);
     }
 
     private function executeQuery(QueryInterface $query): int

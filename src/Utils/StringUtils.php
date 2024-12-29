@@ -35,4 +35,16 @@ class StringUtils
             $value instanceof BackedEnum => (string) $value->value,
         };
     }
+
+    public static function toSql(string|int|float|bool|BackedEnum|null $value): string
+    {
+        return match (true) {
+            is_string($value) => '"' . $value . '"',
+            is_int($value) => (string) $value,
+            is_float($value) => (string) $value,
+            is_bool($value) => $value ? '1' : '0',
+            is_null($value) => 'null',
+            $value instanceof BackedEnum => (string) $value->value,
+        };
+    }
 }
