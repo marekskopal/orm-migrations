@@ -18,7 +18,7 @@
     ],
     "require": {
         "php": ">=8.4",
-        "marekskopal/orm": "dev-main",
+        "marekskopal/orm": "^0.9",
         "nette/php-generator": "^4.1",
         "psr/log": "^3.0"
     },
