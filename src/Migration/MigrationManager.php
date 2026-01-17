@@ -28,23 +28,25 @@ readonly class MigrationManager
         foreach ($this->migrationRepository->getFinishedMigrations() as $finishedMigration) {
             $key = array_find_key(
                 $unfinishedMigrationClasses,
-                fn(MigrationClass $unfinishedMigrationClass): bool => basename($unfinishedMigrationClass->file) === $finishedMigration['name'],
+                fn(MigrationClass $unfinishedMigrationClass): bool => basename(
+                    $unfinishedMigrationClass->file,
+                ) === $finishedMigration['name'],
             );
             unset($unfinishedMigrationClasses[$key]);
         }
 
         foreach ($unfinishedMigrationClasses as $unfinishedMigrationClass) {
             require_once $unfinishedMigrationClass->file;
-            $this->runMigration(new $unfinishedMigrationClass->class($this->databaseProvider));
+            $this->runMigration(new $unfinishedMigrationClass->class($this->databaseProvider), basename($unfinishedMigrationClass->file));
         }
     }
 
-    public function runMigration(Migration $migration): void
+    public function runMigration(Migration $migration, string $filename): void
     {
         try {
             $migration->configure();
             $migration->up();
-            $this->migrationRepository->insertMigration($migration::class);
+            $this->migrationRepository->insertMigration($filename);
         } catch (\Throwable $e) {
             if ($this->logger === null) {
                 throw $e;
