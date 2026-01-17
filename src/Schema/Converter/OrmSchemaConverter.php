@@ -50,6 +50,7 @@ class OrmSchemaConverter
                     continue;
                 }
 
+                /** @phpstan-ignore-next-line offsetAccess.notFound */
                 $relationEntitySchema = $schema->entities[$column->relationEntityClass];
                 $relationColumn = $column->relationColumnName;
                 if ($relationColumn === null) {
