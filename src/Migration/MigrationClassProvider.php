@@ -31,6 +31,8 @@ final readonly class MigrationClassProvider
             }
         }
 
+        usort($migrationClasses, fn(MigrationClass $a, MigrationClass $b) => basename($a->file) <=> basename($b->file));
+
         return $migrationClasses;
     }
 }

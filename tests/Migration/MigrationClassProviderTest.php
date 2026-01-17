@@ -35,6 +35,17 @@ final class MigrationClassProviderTest extends TestCase
         self::assertSame('MarekSkopal\ORM\Migrations\Tests\Generator\Migrations\CreateTableMigration', $migrationClasses[0]->class);
     }
 
+    public function testGetMigrationClassesSortedByFilename(): void
+    {
+        $migrationClassProvider = new MigrationClassProvider(self::Path);
+
+        $migrationClasses = $migrationClassProvider->getMigrationClasses();
+
+        self::assertCount(2, $migrationClasses);
+        self::assertStringEndsWith('CreateTableMigration1.php', $migrationClasses[0]->file);
+        self::assertStringEndsWith('CreateTableMigration2.php', $migrationClasses[1]->file);
+    }
+
     protected function tearDown(): void
     {
         unlink(self::Path . '/CreateTableMigration1.php');
