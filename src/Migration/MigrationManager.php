@@ -28,7 +28,7 @@ readonly class MigrationManager
         foreach ($this->migrationRepository->getFinishedMigrations() as $finishedMigration) {
             $key = array_find_key(
                 $unfinishedMigrationClasses,
-                fn(MigrationClass $unfinishedMigrationClass): bool => $unfinishedMigrationClass->class === $finishedMigration['name'],
+                fn(MigrationClass $unfinishedMigrationClass): bool => basename($unfinishedMigrationClass->file) === $finishedMigration['name'],
             );
             unset($unfinishedMigrationClasses[$key]);
         }
