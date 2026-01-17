@@ -18,7 +18,7 @@ readonly class Insert implements QueryInterface
     public function getQuery(): string
     {
         return sprintf(
-            'INSERT INTO TABLE %s (%s) VALUES %s;',
+            'INSERT INTO %s (%s) VALUES %s;',
             NameUtils::escape($this->name),
             $this->getColunsQuery(),
             $this->getValuesQuery(),

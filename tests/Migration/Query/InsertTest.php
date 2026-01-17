@@ -22,7 +22,7 @@ final class InsertTest extends TestCase
         ]);
 
         self::assertSame(
-            'INSERT INTO TABLE `users` (`id`, `name`, `surname`) VALUES (1, "John", "Doe"), (2, "Jane", "Doe");',
+            'INSERT INTO `users` (`id`, `name`, `surname`) VALUES (1, "John", "Doe"), (2, "Jane", "Doe");',
             $insert->getQuery(),
         );
     }
