@@ -51,7 +51,7 @@ abstract readonly class ChangeColumn implements QueryInterface
         }
 
         if ($this->default !== null) {
-            $query .= sprintf(' DEFAULT "%s"', (string) $this->default);
+            $query .= sprintf(' DEFAULT "%s"', (string) ($this->default === false ? '0' : $this->default));
         } elseif ($this->nullable) {
             $query .= ' DEFAULT NULL';
         }
