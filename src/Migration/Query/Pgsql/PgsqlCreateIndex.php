@@ -10,12 +10,8 @@ use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 readonly class PgsqlCreateIndex implements QueryInterface
 {
     /** @param list<string> $columns */
-    public function __construct(
-        public array $columns,
-        public string $name,
-        public bool $unique,
-        public string $tableName,
-    ) {
+    public function __construct(public array $columns, public string $name, public bool $unique, public string $tableName,)
+    {
     }
 
     public function getQuery(): string

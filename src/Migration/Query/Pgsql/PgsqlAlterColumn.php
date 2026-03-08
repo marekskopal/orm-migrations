@@ -23,11 +23,7 @@ readonly class PgsqlAlterColumn extends PgsqlChangeColumn
         $clauses = [];
         $clauses[] = sprintf('ALTER COLUMN %s TYPE %s', $q, $type);
 
-        if ($this->nullable) {
-            $clauses[] = sprintf('ALTER COLUMN %s DROP NOT NULL', $q);
-        } else {
-            $clauses[] = sprintf('ALTER COLUMN %s SET NOT NULL', $q);
-        }
+        $clauses[] = $this->nullable ? sprintf('ALTER COLUMN %s DROP NOT NULL', $q) : sprintf('ALTER COLUMN %s SET NOT NULL', $q);
 
         if ($this->default !== null) {
             $clauses[] = sprintf("ALTER COLUMN %s SET DEFAULT '%s'", $q, (string) ($this->default === false ? '0' : $this->default));

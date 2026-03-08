@@ -14,12 +14,8 @@ readonly class MySqlCreateTable implements QueryInterface
      * @param list<MySqlAddIndex> $indexes
      * @param list<MySqlAddForeignKey> $foreignKeys
      */
-    public function __construct(
-        public string $name,
-        public array $columns,
-        public array $indexes = [],
-        public array $foreignKeys = [],
-    ) {
+    public function __construct(public string $name, public array $columns, public array $indexes = [], public array $foreignKeys = [],)
+    {
     }
 
     public function getQuery(): string

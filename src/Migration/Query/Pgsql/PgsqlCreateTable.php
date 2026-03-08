@@ -13,11 +13,8 @@ readonly class PgsqlCreateTable implements QueryInterface
      * @param list<PgsqlAddColumn> $columns
      * @param list<PgsqlAddForeignKey> $foreignKeys
      */
-    public function __construct(
-        public string $name,
-        public array $columns,
-        public array $foreignKeys = [],
-    ) {
+    public function __construct(public string $name, public array $columns, public array $foreignKeys = [],)
+    {
     }
 
     public function getQuery(): string

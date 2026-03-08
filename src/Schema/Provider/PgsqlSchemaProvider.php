@@ -16,10 +16,8 @@ use PDO;
 
 class PgsqlSchemaProvider implements SchemaProviderInterface
 {
-    public function __construct(
-        private readonly DatabaseInterface $database,
-        private readonly TypeConverterInterface $typeConverter,
-    ) {
+    public function __construct(private readonly DatabaseInterface $database, private readonly TypeConverterInterface $typeConverter,)
+    {
     }
 
     public function getDatabaseSchema(): DatabaseSchema

@@ -39,11 +39,11 @@ class TableBuilder
 
         $this->queries[] = $this->databaseProvider->getQueryFactory()->createAddColumn(
             name: $name,
-            type: $this->databaseProvider->getTypeConverter()->convertToDatabase($type),
+            type: $type,
             nullable: $nullable,
             autoincrement: $autoincrement,
             primary: $primary,
-            size: $this->databaseProvider->getTypeConverter()->sanitizeSize($type, $size),
+            size: $size,
             precision: $precision,
             scale: $scale,
             enum: $enum,
@@ -79,11 +79,11 @@ class TableBuilder
 
         $this->queries[] = $this->databaseProvider->getQueryFactory()->createAlterColumn(
             name: $name,
-            type: $this->databaseProvider->getTypeConverter()->convertToDatabase($type),
+            type: $type,
             nullable: $nullable,
             autoincrement: $autoincrement,
             primary: $primary,
-            size: $this->databaseProvider->getTypeConverter()->sanitizeSize($type, $size),
+            size: $size,
             precision: $precision,
             scale: $scale,
             enum: $enum,

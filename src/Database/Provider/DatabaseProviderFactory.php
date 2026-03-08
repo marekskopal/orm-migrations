@@ -22,14 +22,12 @@ final class DatabaseProviderFactory
             $database instanceof MySqlDatabase => new DatabaseProvider(
                 database: $database,
                 schemaProvider: new MySqlSchemaProvider($database, new MySqlTypeConverter()),
-                typeConverter: new MySqlTypeConverter(),
-                queryFactory: new MySqlQueryFactory(),
+                queryFactory: new MySqlQueryFactory(new MySqlTypeConverter()),
             ),
             $database instanceof PostgresDatabase => new DatabaseProvider(
                 database: $database,
                 schemaProvider: new PgsqlSchemaProvider($database, new PgsqlTypeConverter()),
-                typeConverter: new PgsqlTypeConverter(),
-                queryFactory: new PgsqlQueryFactory(),
+                queryFactory: new PgsqlQueryFactory(new PgsqlTypeConverter()),
             ),
             default => throw new \InvalidArgumentException('Unsupported database type'),
         };

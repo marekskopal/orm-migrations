@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
 use BackedEnum;
+use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Migration\Query\Enum\ReferenceOptionEnum;
 
 interface QueryFactoryInterface
@@ -12,7 +13,7 @@ interface QueryFactoryInterface
     /** @param list<string>|null $enum */
     public function createAddColumn(
         string $name,
-        string $type,
+        Type $type,
         bool $nullable = false,
         bool $autoincrement = false,
         bool $primary = false,
@@ -26,7 +27,7 @@ interface QueryFactoryInterface
     /** @param list<string>|null $enum */
     public function createAlterColumn(
         string $name,
-        string $type,
+        Type $type,
         bool $nullable = false,
         bool $autoincrement = false,
         bool $primary = false,
