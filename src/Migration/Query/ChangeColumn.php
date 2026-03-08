@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
 abstract readonly class ChangeColumn implements QueryInterface
 {
@@ -34,7 +34,7 @@ abstract readonly class ChangeColumn implements QueryInterface
             $type .= sprintf('(%s)', implode(',', array_map(fn (string $value): string => sprintf('"%s"', $value), $this->enum)));
         }
 
-        $query = sprintf('%s %s', NameUtils::escape($this->name), $type);
+        $query = sprintf('%s %s', EscapeUtils::escape($this->name), $type);
 
         if ($this->nullable) {
             $query .= ' NULL';

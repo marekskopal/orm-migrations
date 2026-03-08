@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
 readonly class AlterTable implements QueryInterface
 {
@@ -34,7 +34,7 @@ readonly class AlterTable implements QueryInterface
     {
         return sprintf(
             'ALTER TABLE %s %s;',
-            NameUtils::escape($this->name),
+            EscapeUtils::escape($this->name),
             implode(', ', $this->getQueries()),
         );
     }
@@ -82,7 +82,7 @@ readonly class AlterTable implements QueryInterface
         $columns = [];
 
         foreach ($this->columnToAlter as $column) {
-            $columns[] = sprintf('CHANGE %s %s', NameUtils::escape($column->name), $column->getQuery());
+            $columns[] = sprintf('CHANGE %s %s', EscapeUtils::escape($column->name), $column->getQuery());
         }
 
         return implode(', ', $columns);

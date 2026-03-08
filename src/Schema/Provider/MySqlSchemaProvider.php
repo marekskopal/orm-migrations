@@ -13,7 +13,7 @@ use MarekSkopal\ORM\Migrations\Schema\ForeignKeySchema;
 use MarekSkopal\ORM\Migrations\Schema\IndexSchema;
 use MarekSkopal\ORM\Migrations\Schema\TableSchema;
 use MarekSkopal\ORM\Migrations\Utils\ColumnType;
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 use PDO;
 
 class MySqlSchemaProvider implements SchemaProviderInterface
@@ -62,7 +62,7 @@ class MySqlSchemaProvider implements SchemaProviderInterface
     /** @return array<string, ColumnSchema> */
     private function getColumnsSchema(string $tableName): array
     {
-        $query = $this->database->getPdo()->prepare('SHOW FULL COLUMNS FROM ' . NameUtils::escape($tableName));
+        $query = $this->database->getPdo()->prepare('SHOW FULL COLUMNS FROM ' . EscapeUtils::escape($tableName));
         $query->execute();
         if ($query === false) {
             throw new \RuntimeException('Cannot get columns from table ' . $tableName);
@@ -105,7 +105,7 @@ class MySqlSchemaProvider implements SchemaProviderInterface
     /** @return array<string, IndexSchema> */
     private function getIndexesSchema(string $tableName): array
     {
-        $query = $this->database->getPdo()->prepare('SHOW INDEXES FROM ' . NameUtils::escape($tableName));
+        $query = $this->database->getPdo()->prepare('SHOW INDEXES FROM ' . EscapeUtils::escape($tableName));
         $query->execute();
         if ($query === false) {
             throw new \RuntimeException('Cannot get indexes from table ' . $tableName);

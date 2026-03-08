@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
 readonly class DropForeignKey implements QueryInterface
 {
@@ -14,6 +14,6 @@ readonly class DropForeignKey implements QueryInterface
 
     public function getQuery(): string
     {
-        return sprintf('DROP FOREIGN KEY %s', NameUtils::escape($this->name));
+        return sprintf('DROP FOREIGN KEY %s', EscapeUtils::escape($this->name));
     }
 }

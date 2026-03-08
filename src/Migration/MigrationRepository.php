@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration;
 
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 use PDO;
 
 readonly class MigrationRepository
@@ -18,7 +18,7 @@ readonly class MigrationRepository
     public function createMigrationTable(): void
     {
         $this->pdo->query(
-            'CREATE TABLE IF NOT EXISTS ' . NameUtils::escape(
+            'CREATE TABLE IF NOT EXISTS ' . EscapeUtils::escape(
                 self::MigrationTable,
             ) . ' (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL)',
         );
@@ -27,7 +27,7 @@ readonly class MigrationRepository
     /** @return list<array{id: int, name: string}> */
     public function getFinishedMigrations(): array
     {
-        $query = $this->pdo->query('SELECT * FROM ' . NameUtils::escape(self::MigrationTable));
+        $query = $this->pdo->query('SELECT * FROM ' . EscapeUtils::escape(self::MigrationTable));
         if ($query === false) {
             throw new \RuntimeException('Failed to fetch migrations');
         }
@@ -38,6 +38,6 @@ readonly class MigrationRepository
 
     public function insertMigration(string $name): void
     {
-        $this->pdo->query('INSERT INTO ' . NameUtils::escape(self::MigrationTable) . ' (name) VALUES (\'' . $name . '\')');
+        $this->pdo->query('INSERT INTO ' . EscapeUtils::escape(self::MigrationTable) . ' (name) VALUES (\'' . $name . '\')');
     }
 }

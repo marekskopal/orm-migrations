@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
 readonly class CreateTable implements QueryInterface
 {
@@ -22,7 +22,7 @@ readonly class CreateTable implements QueryInterface
     {
         return sprintf(
             'CREATE TABLE %s (%s);',
-            NameUtils::escape($this->name),
+            EscapeUtils::escape($this->name),
             implode(', ', $this->getQueries()),
         );
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
 readonly class AddIndex implements QueryInterface
 {
@@ -18,8 +18,8 @@ readonly class AddIndex implements QueryInterface
         $query = sprintf(
             '%sINDEX %s (%s)',
             $this->unique ? 'UNIQUE ' : '',
-            NameUtils::escape($this->name),
-            implode(', ', array_map(fn($column) => NameUtils::escape($column), $this->columns)),
+            EscapeUtils::escape($this->name),
+            implode(', ', array_map(fn($column) => EscapeUtils::escape($column), $this->columns)),
         );
 
         return $query;

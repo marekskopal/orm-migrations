@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
 use MarekSkopal\ORM\Migrations\Migration\Query\Enum\ReferenceOptionEnum;
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
 readonly class AddForeignKey implements QueryInterface
 {
@@ -23,10 +23,10 @@ readonly class AddForeignKey implements QueryInterface
     {
         return sprintf(
             '%sFOREIGN KEY (%s) REFERENCES %s(%s) ON DELETE %s ON UPDATE %s',
-            $this->name !== null ? ('CONSTRAINT ' . NameUtils::escape($this->name) . ' ') : '',
-            NameUtils::escape($this->column),
-            NameUtils::escape($this->referenceTable),
-            NameUtils::escape($this->referenceColumn),
+            $this->name !== null ? ('CONSTRAINT ' . EscapeUtils::escape($this->name) . ' ') : '',
+            EscapeUtils::escape($this->column),
+            EscapeUtils::escape($this->referenceTable),
+            EscapeUtils::escape($this->referenceColumn),
             $this->onDelete->value,
             $this->onUpdate->value,
         );

@@ -6,7 +6,7 @@ namespace MarekSkopal\ORM\Migrations\Migration\Query;
 
 use BackedEnum;
 use MarekSkopal\ORM\Migrations\Utils\StringUtils;
-use MarekSkopal\ORM\Utils\NameUtils;
+use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
 readonly class Insert implements QueryInterface
 {
@@ -19,7 +19,7 @@ readonly class Insert implements QueryInterface
     {
         return sprintf(
             'INSERT INTO %s (%s) VALUES %s;',
-            NameUtils::escape($this->name),
+            EscapeUtils::escape($this->name),
             $this->getColunsQuery(),
             $this->getValuesQuery(),
         );
@@ -27,7 +27,7 @@ readonly class Insert implements QueryInterface
 
     private function getColunsQuery(): string
     {
-        return implode(', ', array_map(fn(string $column): string => NameUtils::escape($column), array_keys($this->values[0])));
+        return implode(', ', array_map(fn(string $column): string => EscapeUtils::escape($column), array_keys($this->values[0])));
     }
 
     private function getValuesQuery(): string
