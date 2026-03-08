@@ -14,13 +14,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Run a single test method
 ./vendor/bin/phpunit --filter testMethodName
 
-# Static analysis
+# Static analysis (max level, strict rules)
 ./vendor/bin/phpstan analyse
 
-# Code style check
+# Code style check / fix
 ./vendor/bin/phpcs
-
-# Code style fix
 ./vendor/bin/phpcbf
 ```
 
@@ -28,43 +26,54 @@ Tests require a MySQL database. Credentials are configured in `phpunit.xml` (hos
 
 ## Architecture
 
-This is a PHP 8.4 library for generating and running database migrations, integrated with the [MarekSkopal ORM](https://github.com/marekskopal/orm) framework.
+PHP 8.4 library for generating and running database migrations, integrated with `marekskopal/orm`. Supports MySQL and PostgreSQL.
 
 ### Entry Point
 
-`Migrator` (`src/Migrator.php`) is the main API class with two public methods:
-- `generate(Schema $schema, string $name, string $namespace): void` — compares ORM schema with DB and generates migration files
+`Migrator` (`src/Migrator.php`) — two public methods:
+- `generate(Schema $schema, string $name, string $namespace): void` — compares ORM schema with live DB and generates migration files
 - `migrate(): void` — executes all pending migrations
 
 ### Core Flow
 
-**Migration Generation:**
-`Migrator::generate()` → `OrmSchemaConverter` (ORM entities → `DatabaseSchema`) + `DatabaseProviderFactory` + `MySqlSchemaProvider` (reads live DB schema) → `SchemaComparator` (diffs the two schemas → `CompareResult`) → `MigrationGenerator` (writes PHP files using `nette/php-generator`)
+**Generation:** `Migrator::generate()` → `OrmSchemaConverter` (ORM entities → `DatabaseSchema`) + `SchemaProviderInterface` (live DB schema) → `SchemaComparator` (diffs → `CompareResult`) → `MigrationGenerator` (emits PHP files via `nette/php-generator`)
 
-**Migration Execution:**
-`Migrator::migrate()` → `MigrationRepository` (manages `__migrations` tracking table) → `MigrationManager` → `MigrationClassProvider` (discovers and sorts files by timestamp prefix) → executes each `Migration::up()` via `TableBuilder` → Query classes → PDO
+**Execution:** `Migrator::migrate()` → `MigrationRepository` (manages `__migrations` tracking table) → `MigrationManager` → `MigrationClassProvider` (discovers and sorts by timestamp prefix) → each `Migration::up()` via `TableBuilder` → dialect-specific query classes → PDO
 
 ### Key Layers
 
 | Layer | Location | Purpose |
 |---|---|---|
 | Schema definitions | `src/Schema/` | `DatabaseSchema`, `TableSchema`, `ColumnSchema`, `IndexSchema`, `ForeignKeySchema` |
+| ORM schema conversion | `src/Schema/Converter/` | `OrmSchemaConverter` (entities → schema), `TypeConverterInterface` + per-DB implementations |
+| Schema reading | `src/Schema/Provider/` | `MySqlSchemaProvider`, `PgsqlSchemaProvider` — read live DB into `DatabaseSchema` |
 | Comparison | `src/Compare/` | `SchemaComparator` diffs two `DatabaseSchema` objects into `CompareResult` |
-| Generation | `src/Generator/` | `MigrationGenerator` emits PHP migration classes |
-| Migration execution | `src/Migration/` | `Migration` base class, `TableBuilder` fluent API, Query classes |
-| Database providers | `src/Database/` | `DatabaseProviderFactory`, `MySqlSchemaProvider`, `MySqlTypeConverter` |
-| Utilities | `src/Utils/` | `ColumnType` parser, `StringUtils`, `ArrayUtils`, `EnumUtils` |
+| Generation | `src/Generator/` | `MigrationGenerator` emits PHP migration class files |
+| Migration execution | `src/Migration/` | `Migration` base class, `TableBuilder` fluent API |
+| Query classes | `src/Migration/Query/Mysql/`, `src/Migration/Query/Pgsql/` | Dialect-specific SQL builders |
+| Database provider | `src/Database/Provider/` | `DatabaseProviderFactory` wires everything per DB type |
+
+### Database Provider Pattern
+
+`DatabaseProviderFactory::create(DatabaseInterface)` returns a `DatabaseProviderInterface` that bundles:
+- `SchemaProviderInterface` — reads live schema from the database
+- `QueryFactoryInterface` — creates dialect-specific query objects
+
+`QueryFactoryInterface` accepts ORM `Type` enum directly; type conversion to SQL strings and size sanitization happen inside the factory (via injected `TypeConverterInterface`). `TableBuilder` has zero dialect conditionals.
+
+Adding a new database requires: `SchemaProviderInterface` impl, `TypeConverterInterface` impl, `QueryFactoryInterface` impl (with all query classes), and a case in `DatabaseProviderFactory`.
+
+### Query Class Structure
+
+Each database has a parallel set of query classes:
+
+- `Mysql/`: `MySqlChangeColumn` (abstract base), `MySqlAddColumn`, `MySqlAlterColumn`, `MySqlDropColumn`, `MySqlAddIndex`, `MySqlDropIndex`, `MySqlAddForeignKey`, `MySqlDropForeignKey`, `MySqlCreateTable`, `MySqlAlterTable`, `MySqlDropTable`, `MySqlInsert`, `MySqlQueryFactory`
+- `Pgsql/`: `PgsqlChangeColumn` (abstract base), `PgsqlAddColumn`, `PgsqlAlterColumn`, `PgsqlDropColumn`, `PgsqlCreateIndex`, `PgsqlDropIndex`, `PgsqlAddForeignKey`, `PgsqlDropForeignKey`, `PgsqlCreateTable`, `PgsqlAlterTable`, `PgsqlDropTable`, `PgsqlInsert`, `PgsqlQueryFactory`
+
+MySQL uses backtick quoting and inline indexes in `CREATE/ALTER TABLE`. PostgreSQL uses double-quote quoting, standalone `CREATE/DROP INDEX`, `GENERATED BY DEFAULT AS IDENTITY` for autoincrement, and `DROP CONSTRAINT` for foreign keys.
+
+`buildCreate()` and `buildAlter()` in the factory assemble the full ordered list of `QueryInterface` objects that `TableBuilder` executes.
 
 ### Migration Files
 
-Generated migration filenames use `Ymd_His_` timestamp prefix (e.g. `20240101_120000_CreateUserTable.php`). `MigrationClassProvider` sorts files by this prefix to ensure correct execution order.
-
-Migrations extend the abstract `Migration` class and implement `up()` and `down()` methods using the fluent `TableBuilder` API (accessed via `$this->table('name')`).
-
-### Database Support
-
-Currently only MySQL is implemented. Adding a new database requires implementing `DatabaseProviderInterface` and a corresponding schema provider and type converter.
-
-### Type System
-
-ORM types (`MarekSkopal\ORM\Enum\Type`) are mapped to/from MySQL column types by `MySqlTypeConverter`. `ColumnType` utility parses raw MySQL type strings (e.g. `varchar(255)`, `decimal(10,2)`, `enum('a','b','c')`) into structured data.
+Filenames use `Ymd_His_` timestamp prefix (e.g. `20240101_120000_CreateUserTable.php`). `MigrationClassProvider` sorts by this prefix for correct execution order. Migrations extend `Migration` and implement `up()` and `down()` using the fluent `TableBuilder` API via `$this->table('name')`.
