@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace MarekSkopal\ORM\Migrations\Migration\Query;
+namespace MarekSkopal\ORM\Migrations\Migration\Query\Mysql;
 
 use BackedEnum;
-use MarekSkopal\ORM\Migrations\Utils\StringUtils;
+use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
 use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
+use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 
-readonly class Insert implements QueryInterface
+readonly class MySqlInsert implements QueryInterface
 {
     /** @param array<array<string|int|float|bool|BackedEnum|null>> $values */
     public function __construct(public string $name, public array $values)
@@ -20,12 +21,12 @@ readonly class Insert implements QueryInterface
         return sprintf(
             'INSERT INTO %s (%s) VALUES %s;',
             EscapeUtils::escape($this->name),
-            $this->getColunsQuery(),
+            $this->getColumnsQuery(),
             $this->getValuesQuery(),
         );
     }
 
-    private function getColunsQuery(): string
+    private function getColumnsQuery(): string
     {
         return implode(', ', array_map(fn(string $column): string => EscapeUtils::escape($column), array_keys($this->values[0])));
     }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations;
 
 use MarekSkopal\ORM\Database\DatabaseInterface;
-use MarekSkopal\ORM\Database\MySqlDatabase;
 use MarekSkopal\ORM\Migrations\Compare\SchemaComparator;
 use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderFactory;
 use MarekSkopal\ORM\Migrations\Generator\MigrationGenerator;
@@ -25,10 +24,6 @@ readonly class Migrator
     {
         $schemaComparator = new SchemaComparator();
 
-        if (!($this->database instanceof MySqlDatabase)) {
-            throw new \Exception('Unsupported database');
-        }
-
         $databaseProvider = new DatabaseProviderFactory()->create($this->database);
         $databaseSchema = $databaseProvider->getSchemaProvider()->getDatabaseSchema();
 
@@ -45,7 +40,7 @@ readonly class Migrator
     {
         $databaseProvider = new DatabaseProviderFactory()->create($this->database);
 
-        $migrationRepository = new MigrationRepository($databaseProvider->getDatabase()->getPdo());
+        $migrationRepository = new MigrationRepository($databaseProvider->getDatabase());
 
         $migrationManager = new MigrationManager($databaseProvider, $migrationRepository, $this->path, $this->logger);
         $migrationManager->runAllMigrations();

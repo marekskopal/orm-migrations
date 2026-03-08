@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query;
+namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query\Mysql;
 
-use MarekSkopal\ORM\Migrations\Migration\Query\AlterColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddColumn;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(AlterColumn::class)]
-final class AlterColumnTest extends TestCase
+#[CoversClass(MySqlAddColumn::class)]
+final class MySqlAddColumnTest extends TestCase
 {
     /** @param list<string> $enum */
     #[TestWith(['id', 'int', false, false, false, null, null, null, null, null, '`id` INT NOT NULL'])]
@@ -40,7 +40,7 @@ final class AlterColumnTest extends TestCase
         string $expected,
     ): void
     {
-        $query = new AlterColumn($name, $type, $nullable, $autoincrement, $primary, $size, $precision, $scale, $enum, $default);
+        $query = new MySqlAddColumn($name, $type, $nullable, $autoincrement, $primary, $size, $precision, $scale, $enum, $default);
 
         self::assertSame($expected, $query->getQuery());
     }

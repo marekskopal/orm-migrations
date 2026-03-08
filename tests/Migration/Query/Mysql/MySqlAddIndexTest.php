@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query;
+namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query\Mysql;
 
-use MarekSkopal\ORM\Migrations\Migration\Query\AddIndex;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddIndex;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(AddIndex::class)]
-final class AddIndexTest extends TestCase
+#[CoversClass(MySqlAddIndex::class)]
+final class MySqlAddIndexTest extends TestCase
 {
     /** @param list<string> $columns */
     #[TestWith(
@@ -24,7 +24,7 @@ final class AddIndexTest extends TestCase
     )]
     public function testGetQuery(array $columns, string $name, bool $unique, string $expected): void
     {
-        $query = new AddIndex($columns, $name, $unique);
+        $query = new MySqlAddIndex($columns, $name, $unique);
 
         self::assertSame($expected, $query->getQuery());
     }

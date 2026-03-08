@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MarekSkopal\ORM\Migrations\Migration\Query;
+namespace MarekSkopal\ORM\Migrations\Migration\Query\Mysql;
 
+use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
 use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
-abstract readonly class ChangeColumn implements QueryInterface
+abstract readonly class MySqlChangeColumn implements QueryInterface
 {
     /** @param list<string>|null $enum */
     public function __construct(
@@ -31,7 +32,7 @@ abstract readonly class ChangeColumn implements QueryInterface
         } elseif ($this->precision !== null && $this->scale !== null) {
             $type .= sprintf('(%d,%d)', $this->precision, $this->scale);
         } elseif ($this->enum !== null) {
-            $type .= sprintf('(%s)', implode(',', array_map(fn (string $value): string => sprintf('"%s"', $value), $this->enum)));
+            $type .= sprintf('(%s)', implode(',', array_map(fn(string $value): string => sprintf('"%s"', $value), $this->enum)));
         }
 
         $query = sprintf('%s %s', EscapeUtils::escape($this->name), $type);

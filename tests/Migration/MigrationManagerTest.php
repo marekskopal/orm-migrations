@@ -11,10 +11,10 @@ use MarekSkopal\ORM\Migrations\Migration\MigrationClass;
 use MarekSkopal\ORM\Migrations\Migration\MigrationClassProvider;
 use MarekSkopal\ORM\Migrations\Migration\MigrationManager;
 use MarekSkopal\ORM\Migrations\Migration\MigrationRepository;
-use MarekSkopal\ORM\Migrations\Migration\Query\AddColumn;
-use MarekSkopal\ORM\Migrations\Migration\Query\AddForeignKey;
-use MarekSkopal\ORM\Migrations\Migration\Query\AddIndex;
-use MarekSkopal\ORM\Migrations\Migration\Query\CreateTable;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddForeignKey;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddIndex;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlCreateTable;
 use MarekSkopal\ORM\Migrations\Migration\TableBuilder;
 use PDO;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -26,10 +26,10 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Migration::class)]
 #[UsesClass(MigrationClass::class)]
 #[UsesClass(MigrationClassProvider::class)]
-#[UsesClass(AddColumn::class)]
-#[UsesClass(AddForeignKey::class)]
-#[UsesClass(AddIndex::class)]
-#[UsesClass(CreateTable::class)]
+#[UsesClass(MySqlAddColumn::class)]
+#[UsesClass(MySqlAddForeignKey::class)]
+#[UsesClass(MySqlAddIndex::class)]
+#[UsesClass(MySqlCreateTable::class)]
 #[UsesClass(TableBuilder::class)]
 final class MigrationManagerTest extends TestCase
 {

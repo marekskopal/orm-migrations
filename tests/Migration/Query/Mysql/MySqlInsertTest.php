@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query;
+namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query\Mysql;
 
-use MarekSkopal\ORM\Migrations\Migration\Query\Insert;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlInsert;
 use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Insert::class)]
+#[CoversClass(MySqlInsert::class)]
 #[UsesClass(StringUtils::class)]
-final class InsertTest extends TestCase
+final class MySqlInsertTest extends TestCase
 {
     public function testGetQuery(): void
     {
-        $insert = new Insert('users', [
+        $insert = new MySqlInsert('users', [
             ['id' => 1, 'name' => 'John', 'surname' => 'Doe'],
             ['id' => 2, 'name' => 'Jane', 'surname' => 'Doe'],
         ]);

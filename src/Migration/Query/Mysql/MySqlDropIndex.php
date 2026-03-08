@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MarekSkopal\ORM\Migrations\Migration\Query;
+namespace MarekSkopal\ORM\Migrations\Migration\Query\Mysql;
 
+use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
 use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 
-readonly class DropIndex implements QueryInterface
+readonly class MySqlDropIndex implements QueryInterface
 {
     public function __construct(public string $name)
     {

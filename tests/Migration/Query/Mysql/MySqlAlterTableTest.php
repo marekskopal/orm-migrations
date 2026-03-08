@@ -2,36 +2,36 @@
 
 declare(strict_types=1);
 
-namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query;
+namespace MarekSkopal\ORM\Migrations\Tests\Migration\Query\Mysql;
 
-use MarekSkopal\ORM\Migrations\Migration\Query\AddColumn;
-use MarekSkopal\ORM\Migrations\Migration\Query\AddForeignKey;
-use MarekSkopal\ORM\Migrations\Migration\Query\AddIndex;
-use MarekSkopal\ORM\Migrations\Migration\Query\AlterColumn;
-use MarekSkopal\ORM\Migrations\Migration\Query\AlterTable;
-use MarekSkopal\ORM\Migrations\Migration\Query\DropColumn;
-use MarekSkopal\ORM\Migrations\Migration\Query\DropForeignKey;
-use MarekSkopal\ORM\Migrations\Migration\Query\DropIndex;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddForeignKey;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAddIndex;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAlterColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlAlterTable;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlDropColumn;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlDropForeignKey;
+use MarekSkopal\ORM\Migrations\Migration\Query\Mysql\MySqlDropIndex;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(AlterTable::class)]
-#[UsesClass(AddColumn::class)]
-#[UsesClass(DropColumn::class)]
-#[UsesClass(AlterColumn::class)]
-#[UsesClass(AddIndex::class)]
-#[UsesClass(DropIndex::class)]
-#[UsesClass(AddForeignKey::class)]
-#[UsesClass(DropForeignKey::class)]
-final class AlterTableTest extends TestCase
+#[CoversClass(MySqlAlterTable::class)]
+#[UsesClass(MySqlAddColumn::class)]
+#[UsesClass(MySqlDropColumn::class)]
+#[UsesClass(MySqlAlterColumn::class)]
+#[UsesClass(MySqlAddIndex::class)]
+#[UsesClass(MySqlDropIndex::class)]
+#[UsesClass(MySqlAddForeignKey::class)]
+#[UsesClass(MySqlDropForeignKey::class)]
+final class MySqlAlterTableTest extends TestCase
 {
     public function testGetQuery(): void
     {
-        $query = new AlterTable(
+        $query = new MySqlAlterTable(
             'table',
             [
-                new AddColumn(
+                new MySqlAddColumn(
                     'name',
                     'varchar',
                     false,
@@ -41,35 +41,35 @@ final class AlterTableTest extends TestCase
                 ),
             ],
             [
-                new DropColumn('column_a'),
+                new MySqlDropColumn('column_a'),
             ],
             [
-                new AlterColumn(
+                new MySqlAlterColumn(
                     'column_b',
                     'int',
                 ),
             ],
             [
-                new AddIndex(
+                new MySqlAddIndex(
                     ['column_a'],
                     'index_a',
                     false,
                 ),
             ],
             [
-                new DropIndex(
+                new MySqlDropIndex(
                     'fk_a',
                 ),
             ],
             [
-                new AddForeignKey(
+                new MySqlAddForeignKey(
                     'fk_b',
                     'column_a',
                     'table_a',
                 ),
             ],
             [
-                new DropForeignKey(
+                new MySqlDropForeignKey(
                     'fk_c',
                 ),
             ],
