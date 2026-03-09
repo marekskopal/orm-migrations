@@ -47,8 +47,9 @@ readonly class MigrationRepository
     public function insertMigration(string $name): void
     {
         $q = $this->database->getIdentifierQuoteChar();
-        $this->database->getPdo()->query(
-            'INSERT INTO ' . EscapeUtils::escape(self::MigrationTable, $q) . ' (name) VALUES (\'' . $name . '\')',
+        $statement = $this->database->getPdo()->prepare(
+            'INSERT INTO ' . EscapeUtils::escape(self::MigrationTable, $q) . ' (name) VALUES (?)',
         );
+        $statement->execute([$name]);
     }
 }
