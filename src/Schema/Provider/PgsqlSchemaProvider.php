@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Schema\Provider;
 
 use MarekSkopal\ORM\Database\DatabaseInterface;
+use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Migration\MigrationRepository;
 use MarekSkopal\ORM\Migrations\Schema\ColumnSchema;
 use MarekSkopal\ORM\Migrations\Schema\Converter\Type\TypeConverterInterface;
@@ -103,10 +104,15 @@ class PgsqlSchemaProvider implements SchemaProviderInterface
          */
         $columns = $query->fetchAll(PDO::FETCH_ASSOC);
 
+        $enumConstraints = $this->getEnumConstraints($tableName);
+
         $columnsSchema = [];
 
         foreach ($columns as $column) {
-            $type = $this->typeConverter->convert($column['data_type']);
+            $enumValues = $enumConstraints[$column['column_name']] ?? null;
+            $type = $enumValues !== null
+                ? Type::Enum
+                : $this->typeConverter->convert($column['data_type']);
             $autoincrement = $column['is_identity'] === 'YES'
                 || str_starts_with($column['column_default'] ?? '', 'nextval(');
 
@@ -119,12 +125,52 @@ class PgsqlSchemaProvider implements SchemaProviderInterface
                 size: $column['character_maximum_length'] !== null ? (int) $column['character_maximum_length'] : null,
                 precision: $column['numeric_precision'] !== null ? (int) $column['numeric_precision'] : null,
                 scale: $column['numeric_scale'] !== null ? (int) $column['numeric_scale'] : null,
-                enum: null,
+                enum: $enumValues,
                 default: $autoincrement ? null : $column['column_default'],
             );
         }
 
         return $columnsSchema;
+    }
+
+    /** @return array<string, list<string>> */
+    private function getEnumConstraints(string $tableName): array
+    {
+        $query = $this->database->getPdo()->prepare(
+            'SELECT a.attname AS column_name, pg_get_constraintdef(con.oid) AS constraint_def' .
+            ' FROM pg_constraint con' .
+            ' JOIN pg_class rel ON rel.oid = con.conrelid' .
+            ' JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace' .
+            ' JOIN LATERAL unnest(con.conkey) AS conkey_elem ON true' .
+            ' JOIN pg_attribute a ON a.attrelid = rel.oid AND a.attnum = conkey_elem' .
+            ' WHERE con.contype = :contype AND rel.relname = :table AND nsp.nspname = :schema',
+        );
+        $query->execute([':contype' => 'c', ':table' => $tableName, ':schema' => 'public']);
+
+        /**
+         * @var array<int, array{column_name: string, constraint_def: string}> $rows
+         */
+        $rows = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        $enumConstraints = [];
+
+        foreach ($rows as $row) {
+            // PostgreSQL normalises IN (...) to = ANY (ARRAY[...]) internally.
+            // pg_get_constraintdef() returns e.g.:
+            //   CHECK ((status = ANY (ARRAY['active'::text, 'inactive'::text])))
+            if (preg_match('/= ANY \(ARRAY\[(.+?)]\)/i', $row['constraint_def'], $arrayMatch) !== 1) {
+                continue;
+            }
+
+            preg_match_all("/'([^']+)'/", $arrayMatch[1], $valueMatches);
+            if (count($valueMatches[1]) === 0) {
+                continue;
+            }
+
+            $enumConstraints[$row['column_name']] = $valueMatches[1];
+        }
+
+        return $enumConstraints;
     }
 
     /** @return array<string, IndexSchema> */
