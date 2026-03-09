@@ -147,9 +147,7 @@ class PgsqlSchemaProvider implements SchemaProviderInterface
         );
         $query->execute([':contype' => 'c', ':table' => $tableName, ':schema' => 'public']);
 
-        /**
-         * @var array<int, array{column_name: string, constraint_def: string}> $rows
-         */
+        /** @var array<int, array{column_name: string, constraint_def: string}> $rows */
         $rows = $query->fetchAll(PDO::FETCH_ASSOC);
 
         $enumConstraints = [];
