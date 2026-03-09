@@ -171,12 +171,15 @@ class TableBuilder
     {
         $pdo = $this->databaseProvider->getDatabase()->getPdo();
 
-        $affectedRows = $pdo->exec($query->getQuery());
+        $sql = $query->getQuery();
+        $affectedRows = $pdo->exec($sql);
         if ($affectedRows === false) {
             /** @var array{0: string, 1: string, 2: string} $error */
             $error = $pdo->errorInfo();
 
-            throw new \RuntimeException('Query failed: [' . $error[0] . ']: ' . $error[1] . ' - ' . $error[2]);
+            throw new \RuntimeException(
+                sprintf('Query failed on table "%s": [%s]: %s - %s; Query: %s', $this->name, $error[0], $error[1], $error[2], $sql),
+            );
         }
 
         return $affectedRows;
