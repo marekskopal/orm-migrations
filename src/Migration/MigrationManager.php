@@ -43,15 +43,18 @@ readonly class MigrationManager
 
     public function runMigration(Migration $migration, string $filename): void
     {
+        $this->logger?->info(sprintf('Running migration: %s', $filename));
+
         try {
             $migration->configure();
             $migration->up();
             $this->migrationRepository->insertMigration($filename);
+            $this->logger?->info(sprintf('Migration completed: %s', $filename));
         } catch (\Throwable $e) {
             if ($this->logger === null) {
                 throw $e;
             }
-            $this->logger->error($e->getMessage());
+            $this->logger->error(sprintf('Migration failed: %s - %s', $filename, $e->getMessage()));
         }
     }
 }
