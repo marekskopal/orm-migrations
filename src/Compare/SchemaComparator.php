@@ -126,12 +126,12 @@ class SchemaComparator
             unset($tablesToCreate[$key]);
         }
 
-        $maxIterations = count($tablesToCreate);
-        for ($i = 0; count($tablesToCreate) > 0 && $i < $maxIterations; $i++) {
+        $progress = true;
+        while (count($tablesToCreate) > 0 && $progress) {
+            $progress = false;
             foreach ($tablesToCreate as $key => $tableToCreate) {
                 $hasAllForeignKeysTablesCreated = true;
-                $foreignKeysToCreate = $tableToCreate->foreignKeysToCreate;
-                foreach ($foreignKeysToCreate as $foreignKeyToCreate) {
+                foreach ($tableToCreate->foreignKeysToCreate as $foreignKeyToCreate) {
                     if (!array_key_exists($foreignKeyToCreate->changedForeignKey->referenceTable, $sortedTablesToCreate)) {
                         $hasAllForeignKeysTablesCreated = false;
                         break;
@@ -143,10 +143,17 @@ class SchemaComparator
 
                 $sortedTablesToCreate[$tableToCreate->name] = $tableToCreate;
                 unset($tablesToCreate[$key]);
+                $progress = true;
             }
         }
 
-        return array_values(array_merge($sortedTablesToCreate, $tablesToCreate));
+        if (count($tablesToCreate) > 0) {
+            throw new \RuntimeException(
+                'Circular foreign key dependency detected among tables: ' . implode(', ', array_column($tablesToCreate, 'name')),
+            );
+        }
+
+        return array_values($sortedTablesToCreate);
     }
 
     private function compareTable(TableSchema $tableDatabase, TableSchema $tableOrm): CompareResultTable
