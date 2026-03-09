@@ -153,11 +153,20 @@ class PgsqlSchemaProvider implements SchemaProviderInterface
         $indexesSchema = [];
 
         foreach ($indexes as $index) {
-            $indexesSchema[$index['index_name']] = new IndexSchema(
-                columns: [$index['column_name']],
-                name: $index['index_name'],
-                unique: $index['is_unique'] === true || $index['is_unique'] === 't',
-            );
+            if (isset($indexesSchema[$index['index_name']])) {
+                $existing = $indexesSchema[$index['index_name']];
+                $indexesSchema[$index['index_name']] = new IndexSchema(
+                    columns: [...$existing->columns, $index['column_name']],
+                    name: $existing->name,
+                    unique: $existing->unique,
+                );
+            } else {
+                $indexesSchema[$index['index_name']] = new IndexSchema(
+                    columns: [$index['column_name']],
+                    name: $index['index_name'],
+                    unique: $index['is_unique'] === true || $index['is_unique'] === 't',
+                );
+            }
         }
 
         return $indexesSchema;

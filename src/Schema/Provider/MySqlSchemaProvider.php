@@ -127,11 +127,20 @@ class MySqlSchemaProvider implements SchemaProviderInterface
                 continue;
             }
 
-            $indexesSchema[$index['Key_name']] = new IndexSchema(
-                columns: [$index['Column_name']],
-                name: $index['Key_name'],
-                unique: $index['Non_unique'] === '0',
-            );
+            if (isset($indexesSchema[$index['Key_name']])) {
+                $existing = $indexesSchema[$index['Key_name']];
+                $indexesSchema[$index['Key_name']] = new IndexSchema(
+                    columns: [...$existing->columns, $index['Column_name']],
+                    name: $existing->name,
+                    unique: $existing->unique,
+                );
+            } else {
+                $indexesSchema[$index['Key_name']] = new IndexSchema(
+                    columns: [$index['Column_name']],
+                    name: $index['Key_name'],
+                    unique: $index['Non_unique'] === '0',
+                );
+            }
         }
 
         return $indexesSchema;
