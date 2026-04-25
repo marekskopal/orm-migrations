@@ -54,13 +54,13 @@ final class MigrationManagerTest extends TestCase
 
     public function testRunAllMigrations(): void
     {
-        $pdo = $this->createStub(PDO::class);
+        $pdo = self::createStub(PDO::class);
         $pdo->method('exec')->willReturn(1);
-        $database = $this->createStub(DatabaseInterface::class);
+        $database = self::createStub(DatabaseInterface::class);
         $database->method('getPdo')->willReturn($pdo);
-        $databaseProvider = $this->createStub(DatabaseProviderInterface::class);
+        $databaseProvider = self::createStub(DatabaseProviderInterface::class);
         $databaseProvider->method('getDatabase')->willReturn($database);
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $migrationRepository = $this->createMock(MigrationRepository::class);
         $migrationRepository->expects($this->once())->method('createMigrationTable');
         $migrationRepository->expects($this->once())->method('getFinishedMigrations')->willReturn([]);
