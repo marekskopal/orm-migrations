@@ -14,6 +14,7 @@ abstract class Migration
 
     public function configure(): void
     {
+        // Override in subclasses to configure migration options
     }
 
     abstract public function up(): void;
