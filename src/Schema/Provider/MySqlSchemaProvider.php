@@ -84,14 +84,15 @@ class MySqlSchemaProvider implements SchemaProviderInterface
 
         foreach ($columns as $column) {
             $columnType = ColumnType::parseColumnType($column['Type']);
+            $type = $this->typeConverter->convert($columnType->type);
 
             $columnsSchema[$column['Field']] = new ColumnSchema(
                 name: $column['Field'],
-                type: $this->typeConverter->convert($columnType->type),
+                type: $type,
                 nullable: $column['Null'] === 'YES',
                 autoincrement: $column['Extra'] === 'auto_increment',
                 primary: $column['Key'] === 'PRI',
-                size: $columnType->size,
+                size: $this->typeConverter->sanitizeSize($type, $columnType->size),
                 precision: $columnType->precision,
                 scale: $columnType->scale,
                 enum: $columnType->enum,
