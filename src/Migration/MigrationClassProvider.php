@@ -21,12 +21,9 @@ final readonly class MigrationClassProvider
         $phpFiles = Finder::findFiles(rtrim($this->path, '/') . '/**/*.php');
         foreach ($phpFiles as $phpFile) {
             $classScanner = new ClassScanner($phpFile->getRealPath());
-            /** @var class-string<Migration> $class */
+            // Classes are validated as Migration subclasses in MigrationManager,
+            // after the file is loaded (is_subclass_of requires the class to exist).
             foreach ($classScanner->findClasses() as $class) {
-                //if (!is_subclass_of($class, Migration::class)) {
-                //    continue;
-                //}
-
                 $migrationClasses[] = new MigrationClass($class, $phpFile->getRealPath());
             }
         }

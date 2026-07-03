@@ -50,6 +50,12 @@ final class MigrationManagerTest extends TestCase
             self::Path . '/CreateTableMigration2.php',
             str_replace('class CreateTableMigration', 'class CreateTableMigration2', $content),
         );
+        file_put_contents(
+            self::Path . '/NotAMigration3.php',
+            "<?php\n\ndeclare(strict_types=1);\n\n"
+            . "namespace MarekSkopal\\ORM\\Migrations\\Tests\\Generator\\Migrations;\n\n"
+            . "final class NotAMigration3\n{\n}\n",
+        );
     }
 
     public function testRunAllMigrations(): void
@@ -64,6 +70,7 @@ final class MigrationManagerTest extends TestCase
         $migrationRepository = $this->createMock(MigrationRepository::class);
         $migrationRepository->expects($this->once())->method('createMigrationTable');
         $migrationRepository->expects($this->once())->method('getFinishedMigrations')->willReturn([]);
+        // Only the two Migration subclasses run; NotAMigration3 is skipped.
         $migrationRepository->expects($this->exactly(2))->method('insertMigration');
 
         $migrationManager = new MigrationManager($databaseProvider, $migrationRepository, self::Path, $logger);
@@ -75,5 +82,6 @@ final class MigrationManagerTest extends TestCase
     {
         unlink(self::Path . '/CreateTableMigration1.php');
         unlink(self::Path . '/CreateTableMigration2.php');
+        unlink(self::Path . '/NotAMigration3.php');
     }
 }
