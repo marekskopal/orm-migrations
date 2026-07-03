@@ -36,15 +36,16 @@ class StringUtils
         };
     }
 
-    public static function toSql(string|int|float|bool|BackedEnum|null $value): string
+    /**
+     * Normalizes a value into a scalar safe to bind to a prepared-statement placeholder.
+     * Never inline the result into SQL directly.
+     */
+    public static function toParameter(string|int|float|bool|BackedEnum|null $value): string|int|float|null
     {
         return match (true) {
-            is_string($value) => '"' . $value . '"',
-            is_int($value) => (string) $value,
-            is_float($value) => (string) $value,
-            is_bool($value) => $value ? '1' : '0',
-            is_null($value) => 'null',
-            $value instanceof BackedEnum => (string) $value->value,
+            is_bool($value) => $value ? 1 : 0,
+            $value instanceof BackedEnum => $value->value,
+            default => $value,
         };
     }
 }
