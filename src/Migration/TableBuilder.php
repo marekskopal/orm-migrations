@@ -8,6 +8,7 @@ use BackedEnum;
 use MarekSkopal\ORM\Enum\Type;
 use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 use MarekSkopal\ORM\Migrations\Migration\Query\Enum\ReferenceOptionEnum;
+use MarekSkopal\ORM\Migrations\Migration\Query\ParametrizedQueryInterface;
 use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
 
 class TableBuilder
@@ -172,6 +173,14 @@ class TableBuilder
         $pdo = $this->databaseProvider->getDatabase()->getPdo();
 
         $sql = $query->getQuery();
+
+        if ($query instanceof ParametrizedQueryInterface) {
+            $statement = $pdo->prepare($sql);
+            $statement->execute($query->getParameters());
+
+            return $statement->rowCount();
+        }
+
         $affectedRows = $pdo->exec($sql);
         if ($affectedRows === false) {
             /** @var array{0: string, 1: string, 2: string} $error */

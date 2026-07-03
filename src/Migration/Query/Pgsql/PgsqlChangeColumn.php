@@ -55,7 +55,8 @@ abstract readonly class PgsqlChangeColumn implements QueryInterface
 
         if (!$this->autoincrement) {
             if ($this->default !== null) {
-                $query .= sprintf(" DEFAULT '%s'", (string) ($this->default === false ? '0' : $this->default));
+                $default = (string) ($this->default === false ? '0' : $this->default);
+                $query .= sprintf(" DEFAULT '%s'", EscapeUtils::escapeStringLiteral($default, "'"));
             } elseif ($this->nullable) {
                 $query .= ' DEFAULT NULL';
             }
@@ -65,7 +66,10 @@ abstract readonly class PgsqlChangeColumn implements QueryInterface
             $query .= sprintf(
                 ' CHECK (%s IN (%s))',
                 EscapeUtils::escape($this->name, '"'),
-                implode(', ', array_map(fn(string $v): string => sprintf("'%s'", $v), $this->enum)),
+                implode(', ', array_map(
+                    fn(string $v): string => sprintf("'%s'", EscapeUtils::escapeStringLiteral($v, "'")),
+                    $this->enum,
+                )),
             );
         }
 

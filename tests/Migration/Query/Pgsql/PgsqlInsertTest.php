@@ -22,8 +22,20 @@ final class PgsqlInsertTest extends TestCase
         ]);
 
         self::assertSame(
-            'INSERT INTO "users" ("id", "name", "surname") VALUES (1, "John", "Doe"), (2, "Jane", "Doe");',
+            'INSERT INTO "users" ("id", "name", "surname") VALUES (?, ?, ?), (?, ?, ?);',
             $insert->getQuery(),
         );
+        self::assertSame([1, 'John', 'Doe', 2, 'Jane', 'Doe'], $insert->getParameters());
+    }
+
+    public function testMaliciousValuesAreBoundNotInlined(): void
+    {
+        $malicious = "'); DROP TABLE users; --";
+
+        $insert = new PgsqlInsert('users', [['name' => $malicious]]);
+
+        self::assertSame('INSERT INTO "users" ("name") VALUES (?);', $insert->getQuery());
+        self::assertStringNotContainsString('DROP TABLE', $insert->getQuery());
+        self::assertSame([$malicious], $insert->getParameters());
     }
 }

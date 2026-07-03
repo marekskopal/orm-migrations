@@ -28,6 +28,10 @@ final class PgsqlAddColumnTest extends TestCase
     #[TestWith(
         ['type', 'varchar', false, false, false, null, null, null, ['a', 'b', 'c'], 'a', '"type" VARCHAR NOT NULL DEFAULT \'a\' CHECK ("type" IN (\'a\', \'b\', \'c\'))'],
     )]
+    #[TestWith(['id', 'varchar', false, false, false, null, null, null, null, "a'b", '"id" VARCHAR NOT NULL DEFAULT \'a\'\'b\''])]
+    #[TestWith(
+        ['type', 'varchar', false, false, false, null, null, null, ["a'b"], null, '"type" VARCHAR NOT NULL CHECK ("type" IN (\'a\'\'b\'))'],
+    )]
     public function testGetQuery(
         string $name,
         string $type,

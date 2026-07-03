@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Migration\Query\Pgsql;
 
 use BackedEnum;
-use MarekSkopal\ORM\Migrations\Migration\Query\QueryInterface;
+use MarekSkopal\ORM\Migrations\Migration\Query\ParametrizedQueryInterface;
 use MarekSkopal\ORM\Migrations\Utils\EscapeUtils;
 use MarekSkopal\ORM\Migrations\Utils\StringUtils;
 
-readonly class PgsqlInsert implements QueryInterface
+readonly class PgsqlInsert implements ParametrizedQueryInterface
 {
     /** @param array<array<string|int|float|bool|BackedEnum|null>> $values */
     public function __construct(public string $name, public array $values)
@@ -36,12 +36,22 @@ readonly class PgsqlInsert implements QueryInterface
         return implode(
             ', ',
             array_map(
-                fn(array $row): string => sprintf(
-                    '(%s)',
-                    implode(', ', array_map(fn(string|int|float|bool|BackedEnum|null $value): string => StringUtils::toSql($value), $row)),
-                ),
+                fn(array $row): string => sprintf('(%s)', implode(', ', array_fill(0, count($row), '?'))),
                 $this->values,
             ),
         );
+    }
+
+    /** @return list<string|int|float|null> */
+    public function getParameters(): array
+    {
+        $parameters = [];
+        foreach ($this->values as $row) {
+            foreach ($row as $value) {
+                $parameters[] = StringUtils::toParameter($value);
+            }
+        }
+
+        return $parameters;
     }
 }

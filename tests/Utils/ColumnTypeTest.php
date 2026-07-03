@@ -21,6 +21,8 @@ class ColumnTypeTest extends TestCase
             ['decimal(10,2)', new ColumnType('decimal', precision: 10, scale: 2)],
             ['enum(\'a\',\'b\',\'c\')', new ColumnType('enum', enum: ['a', 'b', 'c'])],
             ['ENUM("A","B","C")', new ColumnType('enum', enum: ['A', 'B', 'C'])],
+            ['enum(\'a,b\',\'c\')', new ColumnType('enum', enum: ['a,b', 'c'])],
+            ['enum(\'a\'\'b\',\'c\')', new ColumnType('enum', enum: ['a\'b', 'c'])],
         ];
     }
 

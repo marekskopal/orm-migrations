@@ -6,6 +6,7 @@ namespace MarekSkopal\ORM\Migrations\Migration;
 
 use MarekSkopal\ORM\Migrations\Database\Provider\DatabaseProviderInterface;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 
 readonly class MigrationManager
 {
@@ -37,7 +38,13 @@ readonly class MigrationManager
 
         foreach ($unfinishedMigrationClasses as $unfinishedMigrationClass) {
             require_once $unfinishedMigrationClass->file;
-            $this->runMigration(new $unfinishedMigrationClass->class($this->databaseProvider), basename($unfinishedMigrationClass->file));
+
+            $class = $unfinishedMigrationClass->class;
+            if (!is_subclass_of($class, Migration::class) || new ReflectionClass($class)->isAbstract()) {
+                continue;
+            }
+
+            $this->runMigration(new $class($this->databaseProvider), basename($unfinishedMigrationClass->file));
         }
     }
 
@@ -51,10 +58,11 @@ readonly class MigrationManager
             $this->migrationRepository->insertMigration($filename);
             $this->logger?->info(sprintf('Migration completed: %s', $filename));
         } catch (\Throwable $e) {
-            if ($this->logger === null) {
-                throw $e;
-            }
-            $this->logger->error(sprintf('Migration failed: %s - %s', $filename, $e->getMessage()));
+            // Rethrow so the run stops instead of continuing against a
+            // partially-migrated schema.
+            $this->logger?->error(sprintf('Migration failed: %s - %s', $filename, $e->getMessage()));
+
+            throw $e;
         }
     }
 }

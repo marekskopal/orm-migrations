@@ -28,6 +28,6 @@
         <env name="MYSQL_HOST" value="localhost"/>
         <env name="MYSQL_DATABASE" value="orm_test"/>
         <env name="MYSQL_USER" value="marek"/>
-        <env name="MYSQL_PASSWORD" value="gEWqLsBP4BTkLRpb"/>
+        <env name="MYSQL_PASSWORD" value=""/>
     </php>
 </phpunit>
