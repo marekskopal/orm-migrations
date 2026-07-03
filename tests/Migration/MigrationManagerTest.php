@@ -78,6 +78,22 @@ final class MigrationManagerTest extends TestCase
         $migrationManager->runAllMigrations();
     }
 
+    public function testFailingMigrationIsRethrownEvenWithLogger(): void
+    {
+        $databaseProvider = self::createStub(DatabaseProviderInterface::class);
+        $databaseProvider->method('getQueryFactory')->willThrowException(new \RuntimeException('migration failed'));
+        $logger = self::createStub(LoggerInterface::class);
+        $migrationRepository = $this->createMock(MigrationRepository::class);
+        $migrationRepository->method('getFinishedMigrations')->willReturn([]);
+        // A failed migration must not be recorded as finished.
+        $migrationRepository->expects($this->never())->method('insertMigration');
+
+        $migrationManager = new MigrationManager($databaseProvider, $migrationRepository, self::Path, $logger);
+
+        $this->expectException(\RuntimeException::class);
+        $migrationManager->runAllMigrations();
+    }
+
     protected function tearDown(): void
     {
         unlink(self::Path . '/CreateTableMigration1.php');

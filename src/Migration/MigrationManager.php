@@ -58,10 +58,11 @@ readonly class MigrationManager
             $this->migrationRepository->insertMigration($filename);
             $this->logger?->info(sprintf('Migration completed: %s', $filename));
         } catch (\Throwable $e) {
-            if ($this->logger === null) {
-                throw $e;
-            }
-            $this->logger->error(sprintf('Migration failed: %s - %s', $filename, $e->getMessage()));
+            // Rethrow so the run stops instead of continuing against a
+            // partially-migrated schema.
+            $this->logger?->error(sprintf('Migration failed: %s - %s', $filename, $e->getMessage()));
+
+            throw $e;
         }
     }
 }
