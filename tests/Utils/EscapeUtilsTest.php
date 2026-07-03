@@ -36,4 +36,19 @@ final class EscapeUtilsTest extends TestCase
         // The embedded backtick is doubled, so it can no longer terminate the identifier.
         self::assertSame('`id`` , ADD COLUMN evil INT); DROP TABLE users; -- `', $escaped);
     }
+
+    public function testEscapeStringLiteralDoublesQuote(): void
+    {
+        self::assertSame("a''b", EscapeUtils::escapeStringLiteral("a'b", "'"));
+        self::assertSame('a""b', EscapeUtils::escapeStringLiteral('a"b', '"'));
+    }
+
+    public function testEscapeStringLiteralEscapesBackslashWhenRequested(): void
+    {
+        // MySQL: backslash is an escape character and must be doubled.
+        self::assertSame('a\\\\b""c', EscapeUtils::escapeStringLiteral('a\\b"c', '"', true));
+
+        // PostgreSQL (standard-conforming strings): backslash is literal.
+        self::assertSame("a\\b''c", EscapeUtils::escapeStringLiteral("a\\b'c", "'"));
+    }
 }

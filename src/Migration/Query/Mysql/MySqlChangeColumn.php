@@ -32,7 +32,10 @@ abstract readonly class MySqlChangeColumn implements QueryInterface
         } elseif ($this->precision !== null && $this->scale !== null) {
             $type .= sprintf('(%d,%d)', $this->precision, $this->scale);
         } elseif ($this->enum !== null) {
-            $type .= sprintf('(%s)', implode(',', array_map(fn(string $value): string => sprintf('"%s"', $value), $this->enum)));
+            $type .= sprintf('(%s)', implode(',', array_map(
+                fn(string $value): string => sprintf('"%s"', EscapeUtils::escapeStringLiteral($value, '"', true)),
+                $this->enum,
+            )));
         }
 
         $query = sprintf('%s %s', EscapeUtils::escape($this->name), $type);
@@ -52,7 +55,8 @@ abstract readonly class MySqlChangeColumn implements QueryInterface
         }
 
         if ($this->default !== null) {
-            $query .= sprintf(' DEFAULT "%s"', (string) ($this->default === false ? '0' : $this->default));
+            $default = (string) ($this->default === false ? '0' : $this->default);
+            $query .= sprintf(' DEFAULT "%s"', EscapeUtils::escapeStringLiteral($default, '"', true));
         } elseif ($this->nullable) {
             $query .= ' DEFAULT NULL';
         }

@@ -26,6 +26,10 @@ final class MySqlAddColumnTest extends TestCase
     #[TestWith(
         ['type', 'enum', false, false, false, null, null, null, ['a', 'b', 'c'], 'a', '`type` ENUM("a","b","c") NOT NULL DEFAULT "a"'],
     )]
+    #[TestWith(['id', 'int', false, false, false, null, null, null, null, 'a"b', '`id` INT NOT NULL DEFAULT "a""b"'])]
+    #[TestWith(
+        ['type', 'enum', false, false, false, null, null, null, ['a"b'], null, '`type` ENUM("a""b") NOT NULL'],
+    )]
     public function testGetQuery(
         string $name,
         string $type,
