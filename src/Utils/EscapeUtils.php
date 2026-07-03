@@ -8,6 +8,8 @@ final class EscapeUtils
 {
     public static function escape(string $name, string $quoteChar = '`'): string
     {
-        return $quoteChar . $name . $quoteChar;
+        // Both MySQL (backtick) and ANSI/PostgreSQL (double quote) escape the
+        // delimiter inside an identifier by doubling it.
+        return $quoteChar . str_replace($quoteChar, $quoteChar . $quoteChar, $name) . $quoteChar;
     }
 }
