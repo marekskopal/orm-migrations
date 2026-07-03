@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace MarekSkopal\ORM\Migrations\Utils;
 
 use BackedEnum;
+use Nette\PhpGenerator\Dumper;
 
 class StringUtils
 {
     /** @param string|int|float|bool|BackedEnum|array<string>|null $value */
     public static function toCode(string|int|float|bool|BackedEnum|array|null $value): string
     {
-        return match (true) {
-            is_array($value) => '[' . implode(', ', array_map(fn ($v) => self::toCode($v), $value)) . ']',
-            is_string($value) => '\'' . $value . '\'',
-            is_int($value) => (string) $value,
-            is_float($value) => (string) $value,
-            is_bool($value) => $value ? 'true' : 'false',
-            is_null($value) => 'null',
-            $value instanceof BackedEnum => '\'' . $value->value . '\'',
-        };
+        // A backed enum is emitted as its scalar value (matching the migration API).
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        }
+
+        // Dumper safely escapes strings/arrays so DB-derived values (column
+        // defaults, enum members) cannot inject code into the generated file.
+        return new Dumper()->dump($value);
     }
 
     /** @param string|int|float|bool|BackedEnum|array<string>|null $value */
