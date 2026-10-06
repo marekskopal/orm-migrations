@@ -10,6 +10,8 @@ Supports **MySQL** and **PostgreSQL**.
 composer require marekskopal/orm-migrations
 ```
 
+This version requires `marekskopal/orm` 2.x. For `marekskopal/orm` 1.x, use `marekskopal/orm-migrations` 1.x.
+
 ## Usage
 
 ### Setup
@@ -33,6 +35,8 @@ $migrator = new Migrator(
 
 For PostgreSQL, use `PostgresDatabase` instead of `MySqlDatabase` — no other changes needed.
 
+A schema dumped with `SchemaBuilder::dump()` works too: pass `Schema::fromFile($path)` to `generate()`.
+
 An optional PSR-3 `LoggerInterface` can be passed as the third argument to `Migrator` to log migration execution.
 
 ### Generate a migration
@@ -42,6 +46,8 @@ $migrator->generate(schema: $schema, name: 'CreateUserTable', namespace: 'App\Mi
 ```
 
 This compares the ORM entity schema against the live database and writes a new PHP migration file to the configured path. Only actual differences (added/changed/removed tables, columns, indexes, foreign keys) are included.
+
+A foreign key column takes the type of the primary key it references, so a relation to an entity with a UUID or string key gets a matching column.
 
 Example generated file:
 
@@ -82,7 +88,7 @@ final class CreateUserTable extends Migration
 $migrator->migrate();
 ```
 
-Executes all pending migrations in order. Completed migrations are tracked in a `__migrations` table in the database.
+Executes all pending migrations in order. Completed migrations are tracked in a `__migrations` table in the database. Afterwards the database's statement cache is cleared, since statements the ORM prepared on the same connection may refer to tables the migrations changed.
 
 ## TableBuilder API
 
