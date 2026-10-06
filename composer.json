@@ -23,12 +23,12 @@
         "psr/log": "^3.0"
     },
     "require-dev": {
-        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan": "^2.3",
         "phpstan/extension-installer": "^1.4",
-        "phpunit/phpunit": "^13.0",
-        "slevomat/coding-standard": "^8.15",
-        "phpstan/phpstan-strict-rules": "^2.0",
-        "phpstan/phpstan-phpunit": "^2.0"
+        "phpunit/phpunit": "^13.4",
+        "slevomat/coding-standard": "^8.31",
+        "phpstan/phpstan-strict-rules": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.1"
     },
     "autoload": {
         "psr-4": {
