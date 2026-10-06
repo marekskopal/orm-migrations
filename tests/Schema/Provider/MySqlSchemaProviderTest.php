@@ -40,6 +40,7 @@ final class MySqlSchemaProviderTest extends TestCase
             username: (string) getenv('MYSQL_USER'),
             password: (string) getenv('MYSQL_PASSWORD'),
             database: (string) getenv('MYSQL_DATABASE'),
+            port: getenv('MYSQL_PORT') !== false ? (int) getenv('MYSQL_PORT') : 3306,
         );
 
         $mySqlSchemaProvider = new MySqlSchemaProvider($mySqlDatabase, new MySqlTypeConverter());

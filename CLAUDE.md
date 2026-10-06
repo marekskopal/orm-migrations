@@ -22,11 +22,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./vendor/bin/phpcbf
 ```
 
-Tests require a MySQL database. Credentials are configured in `phpunit.xml` (host: localhost, database: orm_test, user: marek).
+Tests require a MySQL database. Credentials are configured in `phpunit.xml` (host: localhost, database: orm_test, user: marek); environment variables (`MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`) override them.
 
 ## Architecture
 
-PHP 8.4 library for generating and running database migrations, integrated with `marekskopal/orm`. Supports MySQL and PostgreSQL.
+PHP 8.4 library for generating and running database migrations, integrated with `marekskopal/orm` 2.x. Supports MySQL and PostgreSQL.
 
 ### Entry Point
 

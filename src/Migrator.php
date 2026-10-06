@@ -43,6 +43,12 @@ readonly class Migrator
         $migrationRepository = new MigrationRepository($databaseProvider->getDatabase());
 
         $migrationManager = new MigrationManager($databaseProvider, $migrationRepository, $this->path, $this->logger);
-        $migrationManager->runAllMigrations();
+
+        try {
+            $migrationManager->runAllMigrations();
+        } finally {
+            // Statements the ORM prepared on this connection may refer to tables the migrations changed.
+            $this->database->clearStatementCache();
+        }
     }
 }

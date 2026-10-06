@@ -32,15 +32,26 @@ class OrmSchemaConverter
                     continue;
                 }
 
+                // A foreign key column holds the referenced primary key, so it takes that key's type: the
+                // ORM declares owning relation columns as integers, but keys may be UUIDs or strings.
+                $typeColumn = $column;
+                if ($column->relationType === RelationEnum::ManyToOne || $column->relationType === RelationEnum::OneToOne) {
+                    /** @phpstan-ignore-next-line offsetAccess.notFound */
+                    $referencedPrimaryColumn = $schema->entities[$column->relationEntityClass]->getPrimaryColumn();
+                    if ($referencedPrimaryColumn->columnType !== $column->columnType) {
+                        $typeColumn = $referencedPrimaryColumn;
+                    }
+                }
+
                 $columns[$column->columnName] = new ColumnSchema(
                     name: $column->columnName,
-                    type: $column->columnType,
+                    type: $typeColumn->columnType,
                     nullable: $column->isNullable,
                     autoincrement: $column->isAutoIncrement,
                     primary: $column->isPrimary,
-                    size: $column->size,
-                    precision: $column->precision,
-                    scale: $column->scale,
+                    size: $typeColumn->size,
+                    precision: $typeColumn->precision,
+                    scale: $typeColumn->scale,
                     enum: $column->enumClass !== null ? EnumUtils::getEnumValues($column->enumClass) : null,
                     default: $column->default,
                 );
